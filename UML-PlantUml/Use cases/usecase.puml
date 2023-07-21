@@ -1,0 +1,39 @@
+@startuml usecase
+
+actor User
+
+usecase "View Home Page" as UC1
+usecase "Create Snowboard Trick" as UC2
+usecase "View Snowboard Trick Details" as UC3
+usecase "Edit Snowboard Trick" as UC4
+usecase "Delete Snowboard Trick" as UC5
+usecase "Post Message in Discussion Area" as UC6
+usecase "View Messages in Discussion Area" as UC7
+usecase "Login" as UC8
+usecase "Register" as UC9
+usecase "Forgot Password" as UC10
+usecase "Logout" as UC11
+
+User -down-> UC1
+UC1 -> UC4
+UC1 -> UC5
+User -> UC8
+User -> UC9
+UC8 -down-> UC10
+UC3 -> UC6
+UC3 -down-> UC7
+UC8 -down-> UC11
+UC1 -down-> UC2
+UC1 -down-> UC3
+
+'ORGANIZE_USECASE_GRID'
+UC1 -[#white,dotted]-> UC4
+UC4 -[#white,dotted]-> UC7
+UC7 -[#white,dotted]-> UC10
+UC2 -[#white,dotted]-> UC5
+UC5 -[#white,dotted]-> UC8
+UC3 -[#white,dotted]-> UC6
+UC6 -[#white,dotted]-> UC9
+
+
+@enduml

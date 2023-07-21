@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home
+{% endblock %}
+
+{% block body %}
+
+
+	{# p that says hello, full username, you verified, and prints the verified variable #}
+	{% if is_granted('IS_AUTHENTICATED_FULLY') %}
+		<p class="message_top_home mx-2">{{'hello_user_1' | trans}} {{ app.user.fullname }}{{'hello_user_2' | trans}}</p>
+		{% if app.user.verified == 1 %}
+			<p class="message_top_home mx-2"> {{'your_account_is_verified' | trans}}</p>
+		{% else %}
+			<p class="message_top_home mx-2">{{'your_account_is_not_verified' | trans}}</p>
+		{% endif %}
+		{% else %}
+		<p class="message_top_home mx-2">{{'hello_login_random' | trans}}</p>
+	{% endif %}
+
+	{# flashes #}
+	{% for type, messages in app.flashes %}
+		{% for message in messages %}
+			<div class="alert alert-{{ type }}" role="alert">
+				{{ message }}
+			</div>
+		{% endfor %}
+	{% endfor %}
+
+
+<section class="image-background mx-5 my-2">
+    <div class="catchphrase-container" id="catchphrase-container">
+        <h1 class="catchphrase">{{'catchphrase' | trans}}</h1>
+    </div>
+</section>
+
+
+<div class="arrow-down" id="arrow-down">
+    <a href="#tricks" ><ion-icon name="arrow-down-outline"></a>
+    </ion-icon>
+</div>
+
+<section id="tricks" class="hidden">
+    <div class="trick-grid mx-5" id="trick-grid">
+        {% for trick in pagerfanta %}
+            {% if trick.deleted == 0 %}
+                <div class="card-item hide trick-container">
+                    <a class="text-decoration-none message_top_home" href="{{ path('viewdetail', {'slug': trick.slug}) }}">{{ trick.name }}</a>
+                    {# show below only if the user is the creator of the trick #}
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') and trick.creator == app.user %}
+                        <a href="{{ path('edit', {'slug': trick.slug}) }}">
+                            <ion-icon class="delete-edit-icon" name="pencil-outline"></ion-icon>
+                        </a>
+    
+                        <a href="#" onclick="if (confirm('Are you sure you want to delete this trick?')) { window.location.href='{{ path('delete', {'slug': trick.slug}) }}'; }">
+                            <ion-icon class="delete-edit-icon" name="trash-outline"></ion-icon>
+                        </a>
+                    {% endif %}
+                    {% set firstImage = trick.imageLinks|first %}
+                    {% if firstImage is not same as(false) %}
+                        {% if firstImage is defined %}
+                            <img src="{{ firstImage.getContent(300) }}" alt="a trick image" width="300" height="200">
+                        {% else %}
+                            <p>{{'no_images_for_this_trick' | trans}}</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</section>
+
+<div class="arrow-up hidden" id="arrow-up">
+    <a href="#trick-grid" ><ion-icon name="arrow-up-outline"></a>
+    </ion-icon>
+</div>
+
+
+    <div id="load-more-container"class="card-actions hidden">
+        <button id="load-more" class="btn btn-primary">{{'load_more_1' | trans}}</br>
+         {{'load_more_2' | trans}}</button>
+    </div>
+
+    
+
+{% include 'footer.html.twig' %}
+{% include 'phone.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+	<script src="https://unpkg.com/ionicons@latest/dist/ionicons.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('arrow-down').addEventListener('click', function() {
+        const trickGrid = document.getElementById('tricks');
+        const arrowUp = document.getElementById('arrow-up');
+        const loadMoreContainer = document.getElementById('load-more-container');
+        trickGrid.classList.remove('hidden');
+        arrowUp.classList.remove('hidden');
+        loadMoreContainer.classList.remove('hidden');
+        trickGrid.scrollIntoView({ behavior: 'smooth' });
+    });
+});
+
+</script>
+{% endblock %}

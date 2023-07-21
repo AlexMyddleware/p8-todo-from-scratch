@@ -1,0 +1,18 @@
+@startuml login
+
+actor User
+boundary Controller
+database DB
+
+User -> Controller : Fill out Form
+Controller -> DB : Check email
+DB -> Controller : Email exists?
+Controller --> User : Email not found
+Controller -> DB : Check password
+DB -> Controller : Password correct?
+Controller --> User : Invalid password
+
+Controller -> User : Create session JWT
+Controller --> User : Validation message
+
+@enduml

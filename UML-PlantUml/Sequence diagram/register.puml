@@ -1,0 +1,16 @@
+@startuml register
+
+actor User
+boundary Form
+database DB
+
+User -> Form : Fill out form
+Form -> DB : Check email
+DB -> Form : Email exists?
+Form --> User : Email already exists
+Form -> Form : Validate password
+Form -> DB : Save user
+DB -> Form : User saved
+Form --> User : Validation message
+
+@enduml

@@ -1,0 +1,13 @@
+@startuml Imagelink
+
+class Imagelink {
+  content: string
+  trick: Trick
+  dateOfCreation: date
+  dateOfLastModified: date
+  +create():void
+  +delete():void
+
+}
+
+@enduml

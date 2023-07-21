@@ -1,0 +1,63 @@
+@startuml datamodel
+
+!define table(name,desc) class name as "desc"
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) #x
+
+table(Comment, "comment") {
+  primary_key(id): int
+  foreign_key(authorname): User
+  content: string
+  foreign_key(trick): Trick
+}
+
+table(ImageLink, "ImageLink") {
+  primary_key(id): int
+  content: string
+  foreign_key(trick): Trick
+}
+
+table(VideoLink, "VideoLink") {
+  primary_key(id): int
+  content: string
+  foreign_key(trick): Trick
+}
+
+table(ResetPasswordRequest, "ResetPasswordRequest") {
+  primary_key(id): int
+  foreign_key(user): User
+}
+
+table(User, "User") {
+  primary_key(id): number
+  roles: string[]
+  password: string
+  isVerified: boolean
+  comments: comment[]
+  username: string
+  fullname: string
+  photo: string
+  tricks: trick[]
+}
+
+table(Trick, "Trick") {
+  primary_key(id): number
+  name: string
+  description: string
+  group: string
+  imageLink: imagelink[]
+  videoLink: videolink[]
+  foreign_key(author): User
+  dateOfCreation: date
+  dateOfLastModified: date
+  discussionChannel: string
+}
+
+User "1" -- "many" Comment : authorname
+Trick "1" -- "many" Comment : trick
+Trick "1" -- "many" ImageLink : trick
+Trick "1" -- "many" VideoLink : trick
+User "1" -- "many" ResetPasswordRequest : user
+User "1" -- "many" Trick : author
+
+@enduml

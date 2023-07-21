@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{'register' | trans}}{% endblock %}
+
+{% block body %}
+    <div class="vertical-container">
+        <div class="horizontal-container">
+            {% for flash_error in app.flashes('verify_email_error') %}
+                <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+            {% endfor %}
+            <div class="m-2 p-2">
+                <h1 class="text-center">{{'register' | trans}}</h1>
+                {{ form_start(registrationForm) }}
+                    
+                    <div class="input-group">{{ form_row(registrationForm.fullname) }}</div>
+                    <div class="input-group">{{ form_row(registrationForm.photo) }}</div>
+                    <div class="input-group">{{ form_row(registrationForm.email) }}</div>
+                    <div class="input-group">
+                        {{ form_row(registrationForm.plainPassword) }}
+                    </div>
+                    <div class="input-group">{{ form_row(registrationForm.agreeTerms) }}</div>
+                    <button type="submit" class="btn btn-success">{{'validate' | trans}}</button>
+                {{ form_end(registrationForm) }}
+            </div>
+        </div>
+    </div>
+{% include 'footer.html.twig' %}
+{% include 'phone.html.twig' %}
+
+{% endblock %}

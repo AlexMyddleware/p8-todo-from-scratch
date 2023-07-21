@@ -1,0 +1,15 @@
+@startuml createTrick
+
+actor User
+boundary Controller
+database DB
+
+User -> Controller: create(name, description, group, imageLink, videoLink)
+
+Controller -> User: Check if name is unique
+
+Controller --> DB: save(trick)
+
+Controller -> User: validation message
+
+@enduml

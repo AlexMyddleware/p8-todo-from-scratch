@@ -1,0 +1,16 @@
+@startuml User
+
+class User {
+  id: number
+  roles: string[]
+  password: string
+  isVerified: boolean
+  comments: comment[]
+  username: string
+  fullname: string
+  photo: string
+  tricks: trick[]
+  +create(username: string, fullname: string, photo: string): user
+}
+
+@enduml

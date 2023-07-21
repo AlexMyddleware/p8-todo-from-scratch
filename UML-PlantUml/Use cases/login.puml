@@ -1,0 +1,18 @@
+@startuml login
+
+actor User
+
+usecase Login
+
+User -> Login: Fills out form
+
+Login -> Database: Check if email already exists in database
+
+Database -> Login: Send error if email doesn't exist
+
+Login -> Database: Check if password matches password in database
+
+Database -> Login: Send error if passwords don't match
+
+
+@enduml
