@@ -50,7 +50,7 @@ class RegistrationController extends AbstractController
                     ->from(new Address('snowtricksalex@gmail.com', 'Admin Mail Bot'))
                     ->to($user->getEmail())
                     ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
+                    ->htmlTemplate('user/confirmation_email.html.twig')
             );
             // do anything else you need here, like send an email
 
@@ -59,15 +59,20 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form->createView(),
+        return $this->render('user/create.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 
     #[Route('/verify/email', name: 'app_verify_email', methods: ['GET', 'POST'])]
     public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        if (!$this->getUser()) {
+            $this->addFlash('error', 'Vous devez être connecté pour valider votre email.');
+
+            return $this->redirectToRoute('app_home');
+        }
         
         // validate email confirmation link, sets User::isVerified=true and persists
         try {

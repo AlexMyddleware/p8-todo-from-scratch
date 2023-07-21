@@ -1,0 +1,20 @@
+{% block body %}
+<div class="m-2 p-2">
+	<h1>{{'hi_confirm_email' | trans}}</h1>
+	
+	<p>
+		{{'click_email_link' | trans}}
+		<br><br>
+		<a href="{{ signedUrl }}">{{'click_email_link' | trans}}</a>.
+	
+	
+				{{'link_will_expire' | trans}}
+		{{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
+	</p>
+	
+	<p>
+		{{'email_cheers' | trans}}
+	</p>
+</div>
+{% endblock %}
+

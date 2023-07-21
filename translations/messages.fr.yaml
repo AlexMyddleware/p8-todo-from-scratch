@@ -1,0 +1,44 @@
+hello_login_random: Bonjour, nouvel utilisateur, vous n'êtes pas connecté !
+reserved_footer: Tous droits réservés 2023.
+your_account_is_verified: Votre compte est vérifié.
+your_account_is_not_verified: Votre compte n'est pas vérifié.
+catchphrase: On t'emmène au sommet !
+no_images_for_this_trick: Il n'y a pas d'images pour cette figure.
+load_more_1: Plus
+load_more_2: '...'
+hello_user_1: Bonjour
+hello_user_2: ', vous êtes connecté !'
+home: Accueil
+logout: Déconnexion
+login: Connexion
+register: Inscription
+create_new_trick: Créer une nouvelle figure
+not_verified_check_email: Vous n'êtes pas vérifié, vous ne pouvez pas créer de figure, vérifiez votre email !
+validate: Valider
+no_video_for_this_trick: Il n'y a pas de vidéos pour cette figure.
+account_not_active: Votre compte n'est pas actif, vous ne pouvez pas modifier ou supprimer vos figures !
+add_comment: Ajouter un commentaire
+nedd_verify_account_to_comment: Vous devez vérifier votre compte pour commenter
+comments_title: Commentaires
+no_comment_for_this_trick: Il n'y a pas de commentaires pour cette figure.
+hi_confirm_email: Bonjour ! Veuillez confirmer votre email !
+click_email_link: 'Veuillez confirmer votre adresse email en cliquant sur le lien suivant :'
+confirm_my_email: Confirmer mon email
+link_will_expire: Ce lien expirera dans
+email_cheers: Merci bien !
+forgot_password: Mot de passe oublié ?
+should_receive_email: Vous devriez avoir reçu un email.
+email_address_verified: Votre adresse email a été vérifiée.
+can_only_edit_own_tricks: Vous ne pouvez modifier que vos propres figures !
+can_only_delete_own_tricks: Vous ne pouvez supprimer que vos propres figures !
+edit_trick: Modifier la figure
+save_changes: "Enregistrer les modifications"
+registration_form:
+    fullname: Nom complet
+    password: Mot de passe
+    agree_terms: J'accepte les conditions générales d'utilisation
+trick_form:
+    name: Nom
+    trick_group: Groupe de figure
+    image_link: Lien d'image
+    video_link: Lien de vidéo
