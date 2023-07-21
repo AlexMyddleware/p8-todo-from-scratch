@@ -1,12 +1,9 @@
 # start.ps1
 
-composer install
-yarn install
-yarn build
+docker-compose -f docker-compose.test.yml up --build -d
 
-docker-compose up -d
 
-$containerId = docker-compose ps -q php
-
-docker exec $containerId php bin/console doctrine:schema:update --force
-docker exec $containerId php bin/console doctrine:fixtures:load --no-interaction
+php bin/console doctrine:schema:update --force --complete
+# php bin/console --env=test doctrine:schema:update --force --complete
+php bin/console doctrine:fixtures:load --no-interaction
+# php bin/console --env=test doctrine:fixtures:load --no-interaction
