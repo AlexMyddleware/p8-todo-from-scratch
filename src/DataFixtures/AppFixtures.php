@@ -3,10 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\User;
-use App\Entity\Trick;
 use DateTimeImmutable;
-use App\Entity\ImageLink;
-use App\Entity\VideoLink;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Bundle\FixturesBundle\Fixture;
