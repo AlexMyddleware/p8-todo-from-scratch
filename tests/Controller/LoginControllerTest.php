@@ -37,4 +37,28 @@ class LoginControllerTest extends WebTestCase
         // test that the site contains the logout button
         $this->assertSelectorExists('a[href="/logout"]');
     }
+
+    // test with  bad credentials
+    public function testLoginWithBadCredentials()
+    {
+        $client = static::createClient();
+
+        $crawler = $client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'choupacabra',
+            '_password' => 'password',
+        ]);
+
+        $client->submit($form);
+
+        // follow redirect
+        $client->followRedirect();
+
+        $this->assertResponseIsSuccessful();
+
+        $this->assertSelectorExists('.alert.alert-danger');
+        // assert that alert contains the word "Identifiants invalides."
+        $this->assertSelectorTextContains('.alert.alert-danger', 'Identifiants invalides.');
+    }
 }
