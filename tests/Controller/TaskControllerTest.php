@@ -26,12 +26,6 @@ class TaskControllerTest extends KernelTestCase
 
     public function testgetAllTasks(): void
     {
-        $task = new Task(
-            'title',
-            'content'
-        );
-
-        $this->taskRepository->save($task, true);
 
         $tasks = $this->taskRepository->findAll();
 
