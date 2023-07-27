@@ -23,6 +23,10 @@ class TaskControllerTest extends KernelTestCase
         $this->taskRepository = $this->entityManager
             ->getRepository(Task::class);
 
+        $this->entityManager->getConnection()->executeStatement('DELETE FROM task');
+        // reset the auto-increment
+        $this->entityManager->getConnection()->executeStatement('ALTER TABLE task AUTO_INCREMENT = 1');
+
         // create a task
         $task = new Task(
             'title',
@@ -62,9 +66,7 @@ class TaskControllerTest extends KernelTestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->entityManager->getConnection()->executeStatement('DELETE FROM task');
-        // reset the auto-increment
-        $this->entityManager->getConnection()->executeStatement('ALTER TABLE task AUTO_INCREMENT = 1');
+        
 
         $this->entityManager->close();
 
