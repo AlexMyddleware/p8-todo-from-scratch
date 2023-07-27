@@ -50,6 +50,15 @@ class TaskControllerTest extends KernelTestCase
         $this->assertSame(true, $task->getIsDone());
     }
 
+    // function to test the task_delete function
+    public function testTaskDelete(): void
+    {
+        $task = $this->taskRepository->find(1);
+        $this->taskRepository->remove($task, true);
+
+        $this->assertCount(0, $this->taskRepository->findAll());
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();

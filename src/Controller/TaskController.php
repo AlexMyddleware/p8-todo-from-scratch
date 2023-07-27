@@ -47,7 +47,7 @@ class TaskController extends AbstractController
     public function task_delete(int $id): Response
     {
         $task = $this->taskRepository->find($id);
-        $this->taskRepository->delete($task);
+        $this->taskRepository->remove($task, true);
         return $this->redirectToRoute('task_list');
     }
 
