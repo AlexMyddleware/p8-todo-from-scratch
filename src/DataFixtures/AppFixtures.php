@@ -30,8 +30,8 @@ class AppFixtures extends Fixture
         $user->setRoles(['ROLE_USER']);
 
         // create a best practice user password hasher
-        
-        
+
+
         // create an encoded password for "password"
         $user->setPassword(
             $this->userPasswordHasher->hashPassword(
@@ -43,9 +43,6 @@ class AppFixtures extends Fixture
         $user->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
         $user->setIsVerified(true);
         $manager->persist($user);
-        $manager->flush();
-
-        $manager->flush();
 
 
         // create one task
