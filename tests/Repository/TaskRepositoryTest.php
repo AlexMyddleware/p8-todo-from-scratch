@@ -22,6 +22,13 @@ class TaskRepositoryTest extends KernelTestCase
 
         $this->taskRepository = $this->entityManager
             ->getRepository(Task::class);
+
+            $task = new Task(
+                'title',
+                'content'
+            );
+
+            $this->taskRepository->save($task, true);
     }
 
     public function testSaveTask(): void
@@ -91,5 +98,11 @@ class TaskRepositoryTest extends KernelTestCase
         parent::tearDown();
 
         $this->entityManager->close();
+
+        // empty the database after each test
+        $this->entityManager->getConnection()->executeStatement('DELETE FROM task');
+
+        // reset the auto-increment
+        $this->entityManager->getConnection()->executeStatement('ALTER TABLE task AUTO_INCREMENT = 1');
     }
 }
