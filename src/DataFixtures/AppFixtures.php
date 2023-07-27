@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Task;
 use App\Entity\User;
 use DateTimeImmutable;
 use Doctrine\Persistence\ObjectManager;
@@ -43,6 +44,17 @@ class AppFixtures extends Fixture
         $user->setIsVerified(true);
         $manager->persist($user);
         $manager->flush();
+
+        $manager->flush();
+
+
+        // create one task
+        $task = new Task(
+            'title',
+            'content'
+        );
+
+        $manager->persist($task);
 
         $manager->flush();
     }
