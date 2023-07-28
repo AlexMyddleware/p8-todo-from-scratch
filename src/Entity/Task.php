@@ -28,6 +28,9 @@ class Task
     #[ORM\Column(type: "boolean")]
     private bool $isDone;
 
+    #[ORM\ManyToOne(inversedBy: 'tasks')]
+    private ?User $created_by = null;
+
     public function __construct(
         string $title,
         string $content,
@@ -88,5 +91,17 @@ class Task
     public function toggle(bool $flag): void
     {
         $this->isDone = $flag;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->created_by;
+    }
+
+    public function setCreatedBy(?User $created_by): self
+    {
+        $this->created_by = $created_by;
+
+        return $this;
     }
 }

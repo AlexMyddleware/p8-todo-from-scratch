@@ -63,4 +63,12 @@ class TaskRepository extends ServiceEntityRepository
            ->getOneOrNullResult()
        ;
    }
+
+    public function createTask($title, $content, $isDone): Task
+    {
+        $task = new Task($title, $content);
+        $task->setCreatedBy($this->getUser());
+        $this->save($task, true);
+        return $task;
+    }
 }
