@@ -25,7 +25,7 @@ class LoginControllerTest extends WebTestCase
         $crawler = $client->request('GET', '/login');
 
         $form = $crawler->selectButton('Se connecter')->form([
-            '_username' => 'example@example.com',
+            '_username' => 'anonymous@gmail.com',
             '_password' => 'password',
         ]);
 

@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
-    name: 'Anonymous-tasks',
+    name: 'anonymous-tasks',
     description: 'Add a short description for your command',
 )]
 class AnonymousTasksCommand extends Command
@@ -42,12 +42,11 @@ class AnonymousTasksCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        // Fetch user with id 1
-        $user = $this->userRepository->find(1);
+        $user = $this->userRepository->findOneByEmail('anonymous@gmail.com');
 
         // If the user doesn't exist, display an error message
         if (!$user) {
-            $io->error('No user found with ID 1');
+            $io->error('No user found with email anonymous@gmail.com');
             return Command::FAILURE;
         }
 
