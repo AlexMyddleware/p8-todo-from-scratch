@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Task;
 use App\Entity\User;
 use DateTimeImmutable;
 use Doctrine\Persistence\ObjectManager;
@@ -24,13 +25,13 @@ class AppFixtures extends Fixture
     {
 
         $user = new User();
-        $user->setEmail('example@example.com');
+        $user->setEmail('anonymous@gmail.com');
         $user->setFullname('John Doe');
         $user->setRoles(['ROLE_USER']);
 
         // create a best practice user password hasher
-        
-        
+
+
         // create an encoded password for "password"
         $user->setPassword(
             $this->userPasswordHasher->hashPassword(
@@ -42,7 +43,15 @@ class AppFixtures extends Fixture
         $user->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
         $user->setIsVerified(true);
         $manager->persist($user);
-        $manager->flush();
+
+
+        // create one task
+        $task = new Task(
+            'title',
+            'content'
+        );
+
+        $manager->persist($task);
 
         $manager->flush();
     }
