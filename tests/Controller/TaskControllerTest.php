@@ -3,13 +3,15 @@
 namespace App\Tests\Repository;
 
 use App\Entity\Task;
+use App\Entity\User;
 use App\Controller\TaskController;
 use App\Repository\TaskRepository;
-use Doctrine\ORM\EntityManagerInterface;
 
 // use task controller
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class TaskControllerTest extends WebTestCase
 {
@@ -69,7 +71,7 @@ class TaskControllerTest extends WebTestCase
     }
 
     // function to test the task_create function
-    public function testTaskCreate(): void
+    public function testTaskCreateIsFunctionPresent(): void
     {
 
         // tests if the createTask function exists
@@ -95,6 +97,50 @@ class TaskControllerTest extends WebTestCase
         $this->taskRepository->save($task, true);
 
         $this->assertCount($initTaskCount + 1, $this->taskRepository->findAll());
+    }
+
+    // Function to test the task_create function in the controller
+    public function testTaskCreateSuccess(): void
+    {
+
+        $crawler = $this->client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'anonymous@gmail.com',
+            '_password' => 'password',
+        ]);
+
+        $this->client->submit($form);
+        
+        $this->assertTrue($this->client->getResponse()->isRedirect());
+        $this->client->followRedirect();
+        $this->assertResponseIsSuccessful();
+        // test that the site contains the logout button
+        $this->assertSelectorExists('a[href="/logout"]');
+
+
+        // Arrange: Prepare the task to create
+        $newTitle = 'New Title';
+        $newContent = 'New Content';
+
+        // Act: Request the create page
+        $crawler = $this->client->request('GET', '/task/create');
+        
+        // Act: Submit the form with new data
+        $form = $crawler->selectButton('Ajouter')->form();
+        $form['task[title]']->setValue($newTitle);
+        $form['task[content]']->setValue($newContent);
+
+        $this->client->submit($form);
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been created in the database
+        $createdTask = $this->taskRepository->findOneBy(['title' => $newTitle]);
+        $this->assertNotNull($createdTask);
+        $this->assertEquals($newTitle, $createdTask->getTitle());
+        $this->assertEquals($newContent, $createdTask->getContent());
     }
 
     // function to test the edit function for a task
@@ -256,8 +302,6 @@ class TaskControllerTest extends WebTestCase
         $tasks = $this->taskRepository->findAll();
 
         $this->assertCount(1, $tasks);
-
-        
 
         // Request the /task URL
         $crawler = $this->client->request('GET', '/task');

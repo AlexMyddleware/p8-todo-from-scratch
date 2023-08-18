@@ -77,6 +77,12 @@ class TaskController extends AbstractController
         $taskForm = $this->createForm(TaskType::class);
         $taskForm->handleRequest($request);
 
+        if ($taskForm->isSubmitted()) {
+            foreach ($taskForm->getErrors(true) as $error) {
+                dump($error->getMessage());
+            }
+        }
+
         if ($taskForm->isSubmitted() && $taskForm->isValid()) {
             $task = $taskForm->getData();
             $user = $this->getUser();
