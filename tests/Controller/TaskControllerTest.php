@@ -113,6 +113,34 @@ class TaskControllerTest extends WebTestCase
         );
     }
 
+    public function testEditTaskSuccess(): void
+    {
+        // Arrange: Prepare the task to edit
+        $taskId = 1;
+        $newTitle = 'Updated Title';
+        $newContent = 'Updated Content';
+
+        // Act: Request the edit page
+        $crawler = $this->client->request('GET', "/task/{$taskId}/edit");
+
+        // Assert: Form is displayed
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+
+        // Act: Submit the form with new data
+        $form = $crawler->selectButton('Modifier')->form();
+        $form['task[title]']->setValue($newTitle);
+        $form['task[content]']->setValue($newContent);
+        $this->client->submit($form);
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been updated in the database
+        $updatedTask = $this->taskRepository->find($taskId);
+        $this->assertEquals($newTitle, $updatedTask->getTitle());
+        $this->assertEquals($newContent, $updatedTask->getContent());
+    }
+
     // Function to tost the getAllTasks function
     public function testGetAllTasks(): void
     {
