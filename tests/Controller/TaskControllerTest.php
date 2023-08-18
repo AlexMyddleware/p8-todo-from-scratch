@@ -141,6 +141,25 @@ class TaskControllerTest extends WebTestCase
         $this->assertEquals($newContent, $updatedTask->getContent());
     }
 
+    public function testEditTaskWithInvalidData(): void
+    {
+        // Arrange: Prepare the task to edit
+        $taskId = 1;
+
+        // Act: Request the edit page
+        $crawler = $this->client->request('GET', "/task/{$taskId}/edit");
+
+        // Act: Submit the form with empty title and content
+        $form = $crawler->selectButton('Modifier')->form();
+        $form['task[title]']->setValue('');
+        $form['task[content]']->setValue('');
+        $this->client->submit($form);
+
+        // Assert: Form is displayed with errors: you can't submit an empty title and content in the browser.
+        $this->assertEquals(1, $crawler->filter('input[required]#task_title')->count());
+        $this->assertEquals(1, $crawler->filter('textarea[required]#task_content')->count());
+    }
+
     // Function to tost the getAllTasks function
     public function testGetAllTasks(): void
     {
