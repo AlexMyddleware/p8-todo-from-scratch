@@ -3,24 +3,29 @@
 namespace App\Tests\Repository;
 
 use App\Entity\Task;
+use App\Controller\TaskController;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 // use task controller
-use App\Controller\TaskController;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class TaskControllerTest extends KernelTestCase
+class TaskControllerTest extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
     private TaskRepository $taskRepository;
     private TaskController $taskController;
+    private $client;
 
     protected function setUp(): void
     {
-        $kernel = self::bootKernel();
+        // $kernel = self::bootKernel();
 
-        $this->entityManager = $kernel->getContainer()
+        // create client
+        $this->client = static::createClient();
+
+        $this->entityManager = $this->client->getContainer()
             ->get('doctrine')
             ->getManager();
 
@@ -43,13 +48,6 @@ class TaskControllerTest extends KernelTestCase
         $this->taskController = new TaskController($this->taskRepository);
     }
 
-    public function testgetAllTasks(): void
-    {
-
-        $tasks = $this->taskRepository->findAll();
-
-        $this->assertCount(1, $tasks);
-    }
 
     // function to test the task_toggle function
     public function testTaskToggle(): void
@@ -113,6 +111,44 @@ class TaskControllerTest extends KernelTestCase
             method_exists($this->taskController, 'task_edit'),
             'Class does not have method task_edit'
         );
+    }
+
+    // Function to tost the getAllTasks function
+    public function testGetAllTasks(): void
+    {
+        // Asserts that the getAllTasks exists in the repository
+        $this->assertTrue(
+            method_exists($this->taskRepository, 'findAll'),
+            'Class does not have method getAllTasks'
+        );
+
+        // Asserts that the task_list exists in the controller
+        $this->assertTrue(
+            method_exists($this->taskController, 'getAllTasks'),
+            'Class does not have method getAllTasks'
+        );
+
+        $tasks = $this->taskRepository->findAll();
+
+        $this->assertCount(1, $tasks);
+
+        
+
+        // Request the /task URL
+        $crawler = $this->client->request('GET', '/task');
+
+        // Assert that the response status code is 200 (HTTP_OK)
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+
+        // Assert that there is exactly 1 task in the task list
+        // (assuming tasks are rendered as an HTML list, and each task is an <li> element)
+        $this->assertCount(1, $crawler->filter('div.thumbnail'));
+
+        // If you need to assert against the Response object directly,
+        // you can get it from the client and then make further assertions
+        $response = $this->client->getResponse();
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response);
+
     }
 
     protected function tearDown(): void
