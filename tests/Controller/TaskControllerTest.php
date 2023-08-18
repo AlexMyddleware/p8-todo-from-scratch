@@ -160,6 +160,18 @@ class TaskControllerTest extends WebTestCase
         $this->assertEquals(1, $crawler->filter('textarea[required]#task_content')->count());
     }
 
+    public function testEditNonExistingTask(): void
+    {
+        // Arrange: Prepare a non-existing task ID
+        $taskId = 9999;
+
+        // Act: Request the edit page
+        $this->client->request('GET', "/task/{$taskId}/edit");
+
+        // Assert: Response is 404 Not Found or a redirection to a suitable error page
+        $this->assertEquals(404, $this->client->getResponse()->getStatusCode());
+    }
+
     // Function to tost the getAllTasks function
     public function testGetAllTasks(): void
     {

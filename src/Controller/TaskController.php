@@ -34,6 +34,12 @@ class TaskController extends AbstractController
     {
         // creates a form and a render much like in th task_create function
         $initialTask = $this->taskRepository->find($id);
+
+        // if the task is not found, return a 404 error
+        if (!$initialTask) {
+            throw $this->createNotFoundException('The task does not exist');
+        }
+
         $taskForm = $this->createForm(TaskType::class, $initialTask);
 
         $taskForm->handleRequest($request);
