@@ -30,10 +30,21 @@ class TaskController extends AbstractController
     // functions with name task_edit, task_toggle, task_delete, task_create
 
     #[Route('/task/{id}/edit', name: 'task_edit')]
-    public function task_edit(int $id): Response
+    public function task_edit(int $id, Request $request): Response
     {
-        $task = $this->taskRepository->find($id);
-        return $this->render('task/edit.html.twig', ['task' => $task]);
+        // creates a form and a render much like in th task_create function
+        $initialTask = $this->taskRepository->find($id);
+        $taskForm = $this->createForm(TaskType::class, $initialTask);
+
+        $taskForm->handleRequest($request);
+        if ($taskForm->isSubmitted() && $taskForm->isValid()) {
+            $task = $taskForm->getData();
+            $this->taskRepository->editTask($initialTask, $task->getTitle(), $task->getContent());
+            return $this->redirectToRoute('task_list');
+        }
+
+        return $this->render('task/edit.html.twig', ['taskForm' => $taskForm->createView(), 'task' => $initialTask]);
+
     }
 
     #[Route('/task/{id}/toggle', name: 'task_toggle')]
@@ -66,7 +77,7 @@ class TaskController extends AbstractController
             $this->taskRepository->createTask($task->getTitle(), $task->getContent(), $user);
             return $this->redirectToRoute('task_list');
         }
-        
+
         return $this->render('task/create.html.twig', ['taskForm' => $taskForm->createView()]);
     }
 }

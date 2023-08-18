@@ -72,4 +72,12 @@ class TaskRepository extends ServiceEntityRepository
         $this->save($task, true);
         return $task;
     }
+
+    public function editTask(Task $task, $title, $content): Task
+    {
+        $task->setTitle($title);
+        $task->setContent($content);
+        $this->save($task, true);
+        return $task;
+    }
 }

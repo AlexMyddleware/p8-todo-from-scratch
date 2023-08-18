@@ -7,10 +7,14 @@ use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+// use task controller
+use App\Controller\TaskController;
+
 class TaskControllerTest extends KernelTestCase
 {
     private EntityManagerInterface $entityManager;
     private TaskRepository $taskRepository;
+    private TaskController $taskController;
 
     protected function setUp(): void
     {
@@ -34,6 +38,9 @@ class TaskControllerTest extends KernelTestCase
         );
 
         $this->taskRepository->save($task, true);
+
+        // create a task controller
+        $this->taskController = new TaskController($this->taskRepository);
     }
 
     public function testgetAllTasks(): void
@@ -75,7 +82,7 @@ class TaskControllerTest extends KernelTestCase
 
         // asserts that the task_create function exist in task controller
         $this->assertTrue(
-            method_exists($this->taskRepository, 'createTask'),
+            method_exists($this->taskController, 'task_create'),
             'Class does not have method task_create'
         );
 
@@ -90,6 +97,22 @@ class TaskControllerTest extends KernelTestCase
         $this->taskRepository->save($task, true);
 
         $this->assertCount($initTaskCount + 1, $this->taskRepository->findAll());
+    }
+
+    // function to test the edit function for a task
+    public function testTaskEdit(): void
+    {
+        // Asserts that the editTask exists in the repository
+        $this->assertTrue(
+            method_exists($this->taskRepository, 'editTask'),
+            'Class does not have method editTask'
+        );
+
+        // Asserts that the task_edit exists in the controller
+        $this->assertTrue(
+            method_exists($this->taskController, 'task_edit'),
+            'Class does not have method task_edit'
+        );
     }
 
     protected function tearDown(): void
