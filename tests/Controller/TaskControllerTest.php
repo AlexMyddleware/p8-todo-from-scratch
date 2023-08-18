@@ -172,6 +172,72 @@ class TaskControllerTest extends WebTestCase
         $this->assertEquals(404, $this->client->getResponse()->getStatusCode());
     }
 
+    // Function to test the toggle function for a task
+    public function testTaskToggleSuccess(): void
+    {
+        // Arrange: Prepare the task to toggle
+        $taskId = 1;
+        $task = $this->taskRepository->find($taskId);
+        $initialIsDone = $task->getIsDone();
+
+        // Act: Request the toggle page
+        $this->client->request('GET', "/task/{$taskId}/toggle");
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been updated in the database
+        $updatedTask = $this->taskRepository->find($taskId);
+        $this->assertNotEquals($initialIsDone, $updatedTask->getIsDone());
+    }
+
+    // Function to test the toggle function for a task by setting the task to done and then to not done
+    public function testTaskToggleTwice(): void
+    {
+        // Arrange: Prepare the task to toggle
+        $taskId = 1;
+        $task = $this->taskRepository->find($taskId);
+        $initialIsDone = $task->getIsDone();
+
+        // Act: Request the toggle page
+        $this->client->request('GET', "/task/{$taskId}/toggle");
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been updated in the database
+        $updatedTask = $this->taskRepository->find($taskId);
+        $this->assertNotEquals($initialIsDone, $updatedTask->getIsDone());
+
+        // Act: Request the toggle page
+        $this->client->request('GET', "/task/{$taskId}/toggle");
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been updated in the database
+        $updatedTask = $this->taskRepository->find($taskId);
+        $this->assertEquals($initialIsDone, $updatedTask->getIsDone());
+    }
+
+    // Function to test the delete function for a task with not done
+    public function testTaskDeleteSuccess(): void
+    {
+        // Arrange: Prepare the task to delete
+        $taskId = 1;
+        $task = $this->taskRepository->find($taskId);
+
+        // Act: Request the delete page
+        $this->client->request('GET', "/task/{$taskId}/delete");
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been deleted in the database
+        $deletedTask = $this->taskRepository->find($taskId);
+        $this->assertNull($deletedTask);
+    }
+
     // Function to tost the getAllTasks function
     public function testGetAllTasks(): void
     {
