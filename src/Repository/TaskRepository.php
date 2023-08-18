@@ -3,8 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Task;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<Task>
@@ -64,10 +65,10 @@ class TaskRepository extends ServiceEntityRepository
        ;
    }
 
-    public function createTask($title, $content, $isDone): Task
+    public function createTask($title, $content, User $user): Task
     {
         $task = new Task($title, $content);
-        $task->setCreatedBy($this->getUser());
+        $task->setCreatedBy($user);
         $this->save($task, true);
         return $task;
     }

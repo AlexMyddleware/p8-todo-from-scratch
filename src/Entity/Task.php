@@ -32,8 +32,8 @@ class Task
     private ?User $created_by = null;
 
     public function __construct(
-        string $title,
-        string $content,
+        string $title = '',
+        string $content = '',
         bool $isDone = false,
         ?\DateTimeInterface $createdAt = null
     ) {

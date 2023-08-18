@@ -63,6 +63,35 @@ class TaskControllerTest extends KernelTestCase
         $this->assertCount(0, $this->taskRepository->findAll());
     }
 
+    // function to test the task_create function
+    public function testTaskCreate(): void
+    {
+
+        // tests if the createTask function exists
+        $this->assertTrue(
+            method_exists($this->taskRepository, 'createTask'),
+            'Class does not have method createTask'
+        );
+
+        // asserts that the task_create function exist in task controller
+        $this->assertTrue(
+            method_exists($this->taskRepository, 'createTask'),
+            'Class does not have method task_create'
+        );
+
+        $initTaskCount = count($this->taskRepository->findAll());
+
+
+        $task = new Task(
+            'title',
+            'content'
+        );
+
+        $this->taskRepository->save($task, true);
+
+        $this->assertCount($initTaskCount + 1, $this->taskRepository->findAll());
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
