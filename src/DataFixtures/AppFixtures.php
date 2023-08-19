@@ -64,6 +64,26 @@ class AppFixtures extends Fixture
         $manager->persist($adminUser);
 
 
+        // Create an admin user whose admin role will be removed
+        $adminUserRoleRemoval = new User();
+        $adminUserRoleRemoval->setEmail('adminuserroleremoved@gmail.com');
+        $adminUserRoleRemoval->setFullname('Gandalfnotadmin Doe');
+        $adminUserRoleRemoval->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+
+        // create an encoded password for "passwordadmin"
+
+        $adminUserRoleRemoval->setPassword(
+            $this->userPasswordHasher->hashPassword(
+                $adminUserRoleRemoval,
+                'passwordadminremoval'
+            )
+        );
+
+        $adminUserRoleRemoval->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+        $adminUserRoleRemoval->setIsVerified(true);
+        $manager->persist($adminUserRoleRemoval);
+
+
         // create one task
         $task = new Task(
             'title',

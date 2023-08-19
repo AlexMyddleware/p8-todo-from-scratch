@@ -89,6 +89,6 @@ class AdminSettingController extends AbstractController
         // save the user
         $this->userRepository->save($user, true);
         // redirect to the admin panel
-        return $this->redirectToRoute('admin_users');
+        return $this->redirectToRoute('user_show', ['id' => $id]);  
     }
 }
