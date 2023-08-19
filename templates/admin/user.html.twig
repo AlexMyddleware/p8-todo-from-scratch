@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block header_img %}<img class="slide-image" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">{% endblock %}
+
+{% block body %}
+{# basic page to show the infos of a single user #}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">{{ user.getfullname }}</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <h3>Infos</h3>
+            <ul>
+                <li><strong>Username:</strong> {{ user.getfullname }}</li>
+                <li><strong>Email:</strong> {{ user.email }}</li>
+                <li><strong>Roles:</strong> {{ user.roles|join(', ') }}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <h3>Tasks</h3>
+            <ul>
+                {% for task in user.tasks %}
+                    <li><a href="{{ path('task_show', { 'id': task.id }) }}">{{ task.title }}</a></li>
+                {% else %}
+                    <li>No tasks found</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <a class="btn btn-default" href="{{ path('admin_users') }}">Back to the list</a>
+            <a class="btn btn-default" href="{{ path('user_edit', { 'id': user.id }) }}">Edit</a>
+            {# {{ form_start(delete_form) }} #}
+                {# <input class="btn btn-danger" type="submit" value="Delete"> #}
+            {# {{ form_end(delete_form) }} #}
+        </div>
+    </div>
+{% endblock %}

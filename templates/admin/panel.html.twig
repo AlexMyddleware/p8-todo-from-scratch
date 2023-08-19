@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block header_img %}<img class="slide-image" src="{{ asset('img/todolist_content.jpg') }}" alt="todo list">{% endblock %}
+
+{% block body %}
+{# basic page to show all the users using the users variable #}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Admin Panel</h1>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row user_list">
+        {% for user in users %}
+        <div class="col-md-4 portfolio-item">
+            {# <a href="{{ path('user_show', { 'id': user.id }) }}"> #}
+                <img class="img-responsive" src="{{ asset('img/user.png') }}" alt="user">
+            </a>
+            <h3>
+                <a href="{{ path('user_show', { 'id': user.id }) }}">{{ user.getemail }}</a>
+            </h3>
+            <p>{{ user.email }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <!-- /.row -->
+{% endblock %}
