@@ -46,7 +46,6 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
         // submit the form
         $this->client->submit($form);
 
-        // dump the respons
         
         // follow the redirection
         $crawler = $this->client->followRedirect();
@@ -55,4 +54,5 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
         $this->assertSelectorTextContains('p', 'If an account matching your email exists');
 
     }
+    
 }
