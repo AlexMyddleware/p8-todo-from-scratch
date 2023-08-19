@@ -3,19 +3,22 @@
 namespace App\Tests\Repository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 
 
 class ResetPasswordRequestRepositoryTest extends WebTestCase
 {
+    // MailerAssertionsTrait is a trait that provides some useful assertions to test emails
+    use MailerAssertionsTrait;
+
     private EntityManagerInterface $entityManager;
     private $client;
 
     protected function setUp(): void
     {
-        // $kernel = self::bootKernel();
 
         // create client
         $this->client = static::createClient();
