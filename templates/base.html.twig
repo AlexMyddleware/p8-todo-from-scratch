@@ -42,6 +42,11 @@
 
                 {% if app.user %}
                 <a href="{{ path('app_logout') }}" class="pull-right btn btn-danger">Se déconnecter</a>
+
+                {# if app.user and is an admin, then show a link for the /admin/users page #}
+                {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('admin_users') }}" class="pull-right btn btn-warning">Gestion des utilisateurs</a>
+                {% endif %}
                 {% endif %}
 
                 {% if not app.user and 'login' != app.request.attributes.get('_route') %}
@@ -62,6 +67,15 @@
                             <strong>Oops !</strong> {{ flash_message }}
                         </div>
                     {% endfor %}
+
+                    {% for label, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ label }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+
 
                     {% block header_title %}{% endblock %}
                     {% block header_img %}<img class="slide-image" src="{{ asset('img/todolist_homepage.jpg') }}" alt="todo list">{% endblock %}

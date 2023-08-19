@@ -95,6 +95,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    // Function removeRole  to remeove a role from a user
+    public function removeRole(string $role): self
+    {
+        // get the roles of the user
+        $roles = $this->getRoles();
+        // if the role is in the roles array, remove it
+        if (in_array($role, $roles)) {
+            $key = array_search($role, $roles);
+            unset($roles[$key]);
+        }
+        // set the roles of the user
+        $this->roles = $roles;
+        return $this;
+    }
+
+    // Function addRole to add a role to a user
+    public function addRole(string $role): self
+    {
+        // get the roles of the user
+        $roles = $this->getRoles();
+        // if the role is not in the roles array, add it
+        if (!in_array($role, $roles)) {
+            $roles[] = $role;
+        }
+        // set the roles of the user
+        $this->roles = $roles;
+        return $this;
+    }
+
     /**
      * @see PasswordAuthenticatedUserInterface
      */

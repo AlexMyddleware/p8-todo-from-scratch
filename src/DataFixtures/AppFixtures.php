@@ -44,6 +44,25 @@ class AppFixtures extends Fixture
         $user->setIsVerified(true);
         $manager->persist($user);
 
+        // Create an admin user
+        $adminUser = new User();
+        $adminUser->setEmail('adminuser@gmail.com');
+        $adminUser->setFullname('Admin Doe');
+        $adminUser->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+
+        // create an encoded password for "passwordadmin"
+
+        $adminUser->setPassword(
+            $this->userPasswordHasher->hashPassword(
+                $adminUser,
+                'passwordadmin'
+            )
+        );
+
+        $adminUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+        $adminUser->setIsVerified(true);
+        $manager->persist($adminUser);
+
 
         // create one task
         $task = new Task(

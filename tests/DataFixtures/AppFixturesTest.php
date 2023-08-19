@@ -45,19 +45,21 @@ class AppFixturesTest extends TestCase
     public function testLoad(): void
     {
         // Expect the EntityManagerInterface's persist method to be called twice, once for the user and once for the task
-        $this->entityManagerMock->expects($this->exactly(2))
+        $this->entityManagerMock->expects($this->exactly(3))
             ->method('persist');
 
         // Expect the EntityManagerInterface's flush method to be called three times
         $this->entityManagerMock->expects($this->exactly(1))
             ->method('flush');
 
-        $this->userPasswordHasherMock
-        ->expects($this->once())
+            $this->userPasswordHasherMock
+            ->expects($this->exactly(2)) // Expect 2 calls to hashPassword method
             ->method('hashPassword')
-            ->with($this->isInstanceOf(User::class), 'password')
-            ->willReturn('hashed_password');
-
+            ->withConsecutive(
+                [$this->isInstanceOf(User::class), 'password'], // First call with these parameters
+                [$this->isInstanceOf(User::class), 'passwordadmin'] // Second call with these parameters
+            )
+            ->willReturnOnConsecutiveCalls('hashed_password', 'hashed_password_admin');
 
         $this->appFixtures->load($this->entityManagerMock);
     }
