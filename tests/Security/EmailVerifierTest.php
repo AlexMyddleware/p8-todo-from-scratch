@@ -26,7 +26,6 @@ class EmailVerifierTest extends WebTestCase
 {
 
     private EntityManagerInterface $entityManager;
-    private TaskRepository $taskRepository;
     private $client;
     private $request;
 

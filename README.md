@@ -20,11 +20,12 @@ Admin features:
 
 ## Installation
 ### Step1: Clone the project
-git clone https://github.com/your_username/todo-co.git
-cd todo-co
+`git clone https://github.com/your_username/todo-co.git`
+
+`cd todo-co`
 
 ### Step2: Install dependencies
-composer install
+`composer install`
 
 ### Step3: Configure the environment variables
 create a .env.local and be sure to input your database information. If you are using laragon, it should look like this
@@ -32,13 +33,13 @@ DATABASE_URL="mysql://Myusername:Mypassword@127.0.0.1:3306/Mydatabasename?server
 
 ### Step4: Create the database
 use the commands
-php bin/console doctrine:database:drop --force
-php bin/console doctrine:database:create
-php bin/console doctrine:schema:update --force --complete
+`php bin/console doctrine:database:drop --force`
+`php bin/console doctrine:database:create`
+`php bin/console doctrine:schema:update --force --complete`
 
 ### Step5: Load the fixtures
-php bin/console doctrine:fixtures:load --no-interaction
-php bin/console doctrine:fixtures:load --no-interaction --env=test
+`php bin/console doctrine:fixtures:load --no-interaction`
+`php bin/console doctrine:fixtures:load --no-interaction --env=test`
 
 ### Step6: Run the tests
-./vendor/bin/phpunit --colors --testdox
+`./vendor/bin/phpunit --colors --testdox`
