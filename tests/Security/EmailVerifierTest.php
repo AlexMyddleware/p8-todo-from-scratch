@@ -60,7 +60,7 @@ class EmailVerifierTest extends WebTestCase
         // get the user
         $user = $this->entityManager
             ->getRepository(User::class)
-            ->findOneBy(['email' => 'testuser@gmail.com']);
+            ->findOneBy(['email' => 'anonymous@gmail.com']);
         
         // sets the user to not verified
         $user->setIsVerified(false);
@@ -74,7 +74,7 @@ class EmailVerifierTest extends WebTestCase
         // refresh the user
         $userVerified = $this->entityManager
             ->getRepository(User::class)
-            ->findOneBy(['email' => 'testuser@gmail.com']);
+            ->findOneBy(['email' => 'anonymous@gmail.com']);
 
             // assert that the user is verified
         $this->assertTrue($userVerified->isVerified());
