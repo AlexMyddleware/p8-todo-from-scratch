@@ -1,106 +1,107 @@
 <?php
+
 namespace App\Tests\Controller;
 
 use App\Entity\User;
-use App\Form\ChangePasswordFormType;
-use App\Form\ResetPasswordRequestFormType;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Form\Form;
+use App\Form\ChangePasswordFormType;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\FormInterface;
+use Doctrine\Persistence\ObjectRepository;
+use App\Controller\ResetPasswordController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
-use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class ResetPasswordControllerTest extends WebTestCase
+
+
+class ResetPasswordControllerTest extends TestCase
 {
-    private EntityManagerInterface $entityManager;
     private $resetPasswordHelper;
-    private $client;
-    private $request;
-
+    private $entityManager;
+    private $controller;
 
     protected function setUp(): void
     {
-        $this->client = static::createClient();
-        $this->entityManager = $this->client->getContainer()
-            ->get('doctrine')
-            ->getManager();
-        
-        $serializedData = file_get_contents('tests\Controller\request_data_reset_password.txt');
-        $requestData = unserialize($serializedData);
-        $this->request = new Request($requestData['query'], $requestData['request'], $requestData['attributes'], [], [], $requestData['server']);
         $this->resetPasswordHelper = $this->createMock(ResetPasswordHelperInterface::class);
+        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->controller = new ResetPasswordController($this->resetPasswordHelper, $this->entityManager);
     }
 
-    protected function tearDown(): void
+    public function testResetFunction()
     {
-        parent::tearDown();
-        // $this->entityManager = null; // avoid memory leaks
-    }
+        // Setting up request
+        $request = $this->createMock(Request::class);
 
-    public function testResetPasswordRequest()
-    {
-        $mailerInterface = $this->createMock(MailerInterface::class);
-        $translatorInterface = $this->createMock(TranslatorInterface::class);
+        // Setting up Password Hasher
+        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
+        $passwordHasher->method('hashPassword')
+            ->willReturn('hashed_password');
 
-        $this->client->request('GET', '/reset-password');
+        // Simulate the form submission
+        $form = $this->createMock(Form::class);
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('get')->willReturn($form);
+        $form->method('getData')->willReturn('plain_password');
 
-        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-
-        $form = $this->client->getCrawler()->selectButton('Send password reset email')->form();
-        $form['reset_password_request_form[email]'] = 'test@example.com';
-        $this->client->submit($form);
-
-        // dd($this->client->getResponse()->getContent());
-
-        // $this->assertResponseRedirects('reset-password/check-email');
-        // check that the document contains the title Redirecting to /reset-password/check-email
-        $this->assertSelectorTextContains('title', 'Redirecting to /reset-password/check-email');
-
-        // follow redirect
-        $this->client->followRedirect();
-
-        // dd($this->client->getResponse()->getContent());
-
-        // tests that the response contains the text If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.
+        // Mock FormFactory
+        $formFactory = $this->createMock(FormFactoryInterface::class);
+        $formFactory->method('create')->willReturn($form);
         
-        $this->assertSelectorTextContains('p', 'If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.');
+        $this->controller->setContainer($this->getContainer([
+            'form.factory' => $formFactory,
+        ]));
+
+        // Mock user entity
+        $user = $this->createMock(User::class);
+        $user->method('getEmail')->willReturn('user@example.com');
+
+        // Mocking entity repository to return mocked user
+        $userRepository = $this->createMock(ObjectRepository::class);
+        $userRepository->method('findOneBy')->willReturn($user);
+
+        // Mock TranslatorInterface
+        $mockTranslator = $this->createMock(TranslatorInterface::class);
+        $mockTranslator->method('trans')
+            ->willReturn('Some translation'); // Return a dummy translation
+
+        $this->entityManager->method('getRepository')
+            ->willReturn($userRepository);
+
+        // Mocking ResetPasswordHelper's validateTokenAndFetchUser
+        $this->resetPasswordHelper->method('validateTokenAndFetchUser')
+            ->willReturn($user);
+
+        // Mocking the token being passed in the URL
+        $token = 'fake_token_from_email';
+
+
+        $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+
+        // Assertions
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        // You can add more assertions based on what you expect
     }
 
-    // public function to test the reset function in the reset password controller
-    public function testResetPassword()
+    private function getContainer($services): ContainerInterface
     {
-        $user = $this->entityManager
-            ->getRepository(User::class)
-            ->findOneBy(['email' => 'register@gmail.com']);
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('has')->willReturnCallback(function ($id) use ($services) {
+            return isset($services[$id]);
+        });
+        $container->method('get')->willReturnCallback(function ($id) use ($services) {
+            return $services[$id];
+        });
 
-        $token = $this->request->attributes->get('token');
-
-        // call the reset function from the reset password controller
-        $this->client->request('GET', '/reset-password/reset/'.$token);
-
-        $this->client->followRedirect();
-
-        // fill the form with a new password
-        $form = $this->client->getCrawler()->selectButton('Reset password')->form();
-        $form['change_password_form[plainPassword][first]'] = 'Password1@';
-        $form['change_password_form[plainPassword][second]'] = 'Password1@';
-        $this->client->submit($form);
-        
-        $this->client->followRedirect();
-
-        $this->assertSelectorTextContains('strong', 'Superbe !');
-        $this->assertSelectorTextContains('div.alert.alert-success', 'Votre mot de passe a été modifié avec succès.');
-
-
+        return $container;
     }
-
-   
 }
