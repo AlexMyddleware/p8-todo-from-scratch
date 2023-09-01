@@ -68,6 +68,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
+            'request_stack' => $requestStack,
         ]));
 
         // Mock user entity
