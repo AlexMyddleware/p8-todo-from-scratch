@@ -70,20 +70,6 @@ class RegistrationController extends AbstractController
     public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
     {
 
-        $getRequestData = false;
-        if ($getRequestData == true) {
-        $requestData = [
-                'attributes' => $request->attributes->all(),
-                'request' => $request->request->all(),
-                'query' => $request->query->all(),
-                'server' => $request->server->all(),
-                'headers' => $request->headers->all(),
-                // Add more parts as needed
-            ];
-            $serializedData = serialize($requestData);
-            file_put_contents('request_data_register.txt', $serializedData);
-        }
-
         if (!$this->getUser()) {
             $this->addFlash('error', 'Vous devez être connecté pour valider votre email.');
 
