@@ -11,6 +11,7 @@ use Symfony\Component\Form\FormInterface;
 use Doctrine\Persistence\ObjectRepository;
 use App\Controller\ResetPasswordController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -71,9 +72,13 @@ class ResetPasswordControllerTest extends TestCase
         $formFactory = $this->createMock(FormFactoryInterface::class);
         $formFactory->method('create')->willReturn($form);
 
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('generate')->willReturn('some_fake_url');
+
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
             'request_stack' => $requestStack,
+            'router' => $router,
         ]));
 
         // Mock user entity
@@ -103,7 +108,8 @@ class ResetPasswordControllerTest extends TestCase
 
         // Assertions
         $this->assertInstanceOf(RedirectResponse::class, $response);
-        // You can add more assertions based on what you expect
+
+        $this->assertStringContainsStringIgnoringCase('<title>Redirecting to some_fake_url</title>', $response->getContent());
     }
 
     private function getContainer($services): ContainerInterface
