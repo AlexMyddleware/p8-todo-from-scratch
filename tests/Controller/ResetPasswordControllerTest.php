@@ -12,13 +12,14 @@ use Doctrine\Persistence\ObjectRepository;
 use App\Controller\ResetPasswordController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 
 
@@ -40,10 +41,17 @@ class ResetPasswordControllerTest extends TestCase
         // Setting up request
         $request = $this->createMock(Request::class);
 
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($request);
+
         // Setting up Password Hasher
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
         $passwordHasher->method('hashPassword')
             ->willReturn('hashed_password');
+
+        // this controller method getTokenFromSession will return the string "faketoken"
+        $this->controller->method('getTokenFromSession')
+            ->willReturn('faketoken');
 
         // Simulate the form submission
         $form = $this->createMock(Form::class);
@@ -81,8 +89,8 @@ class ResetPasswordControllerTest extends TestCase
         $this->resetPasswordHelper->method('validateTokenAndFetchUser')
             ->willReturn($user);
 
-        // Mocking the token being passed in the URL
-        $token = 'fake_token_from_email';
+        // We assume that the token session storage was already done
+        $token = null;
 
 
         $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
