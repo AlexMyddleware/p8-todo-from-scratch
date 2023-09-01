@@ -9,6 +9,7 @@ use App\Controller\RegistrationController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
 
@@ -107,7 +108,10 @@ class RegistrationControllerTest extends WebTestCase
 
         $this->assertFalse($user->isVerified());
 
-        $this->registrationController->verifyUserEmail($this->request, $user);
+        // create a mock of the translator
+        $translator = $this->createMock(TranslatorInterface::class);
+
+        $this->registrationController->verifyUserEmail($this->request, $translator);
 
         // refresh the user
         $userVerified = $this->entityManager
