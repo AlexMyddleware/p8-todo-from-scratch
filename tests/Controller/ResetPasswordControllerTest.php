@@ -33,7 +33,12 @@ class ResetPasswordControllerTest extends TestCase
     {
         $this->resetPasswordHelper = $this->createMock(ResetPasswordHelperInterface::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->controller = new ResetPasswordController($this->resetPasswordHelper, $this->entityManager);
+        $this->controller = $this->getMockBuilder(ResetPasswordController::class)
+        ->setConstructorArgs([$this->resetPasswordHelper, $this->entityManager])
+        ->onlyMethods(['getTokenFromSession', 'getTokenFromSessionWrapper'])
+        ->getMock();
+
+        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketoken');
     }
 
     public function testResetFunction()
@@ -49,10 +54,6 @@ class ResetPasswordControllerTest extends TestCase
         $passwordHasher->method('hashPassword')
             ->willReturn('hashed_password');
 
-        // this controller method getTokenFromSession will return the string "faketoken"
-        $this->controller->method('getTokenFromSession')
-            ->willReturn('faketoken');
-
         // Simulate the form submission
         $form = $this->createMock(Form::class);
         $form->method('isSubmitted')->willReturn(true);
@@ -64,7 +65,7 @@ class ResetPasswordControllerTest extends TestCase
         // Mock FormFactory
         $formFactory = $this->createMock(FormFactoryInterface::class);
         $formFactory->method('create')->willReturn($form);
-        
+
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
         ]));

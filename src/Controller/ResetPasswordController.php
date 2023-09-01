@@ -20,8 +20,13 @@ use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
+abstract class BaseController extends AbstractController
+{
+    use ResetPasswordControllerTrait;
+}
+
 #[Route('/reset-password')]
-class ResetPasswordController extends AbstractController
+class ResetPasswordController extends BaseController
 {
     use ResetPasswordControllerTrait;
 
@@ -70,6 +75,11 @@ class ResetPasswordController extends AbstractController
         ]);
     }
 
+    protected function getTokenFromSessionWrapper() {
+        return $this->getTokenFromSession();
+    }
+    
+
     /**
      * Validates and process the reset URL that the user clicked in their email.
      */
@@ -85,7 +95,7 @@ class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_reset_password');
         }
 
-        $token = $this->getTokenFromSession();
+        $token = $this->getTokenFromSessionWrapper();
         if (null === $token) {
             throw $this->createNotFoundException('No reset password token found in the URL or in the session.');
         }
