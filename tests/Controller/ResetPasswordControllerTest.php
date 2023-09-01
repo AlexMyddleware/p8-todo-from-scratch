@@ -16,9 +16,12 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 
@@ -35,10 +38,12 @@ class ResetPasswordControllerTest extends TestCase
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->controller = $this->getMockBuilder(ResetPasswordController::class)
         ->setConstructorArgs([$this->resetPasswordHelper, $this->entityManager])
-        ->onlyMethods(['getTokenFromSession', 'getTokenFromSessionWrapper'])
+        ->onlyMethods(['getTokenFromSession', 'getTokenFromSessionWrapper', 'addFlash'])
         ->getMock();
 
         $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketoken');
+        $this->controller->method('addFlash')->willReturnCallback(function() {});
+
     }
 
     public function testResetFunction()
@@ -93,7 +98,6 @@ class ResetPasswordControllerTest extends TestCase
 
         // We assume that the token session storage was already done
         $token = null;
-
 
         $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
 
