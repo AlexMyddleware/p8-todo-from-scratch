@@ -36,9 +36,7 @@ class RegistrationControllerTest extends WebTestCase
             ->get('doctrine')
             ->getManager();
         
-        $serializedData = file_get_contents('tests\Controller\request_data_register.txt');
-        $requestData = unserialize($serializedData);
-        $this->request = new Request($requestData['query'], $requestData['request'], $requestData['attributes'], [], [], $requestData['server']);
+        $this->request = $this->createMock(Request::class);
 
         $verifyEmailHelperMock = $this->createMock(VerifyEmailHelperInterface::class);
         $verifyEmailHelperMock->method('validateEmailConfirmation')->willReturnSelf();
