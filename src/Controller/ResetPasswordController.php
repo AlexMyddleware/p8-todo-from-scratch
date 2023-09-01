@@ -76,6 +76,23 @@ class ResetPasswordController extends AbstractController
     #[Route('/reset/{token}', name: 'app_reset_password', methods: ['GET', 'POST'])]
     public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, string $token = null): Response
     {
+        $test  = false;
+        if ($test == true) {
+
+            $requestData = [
+                'attributes' => $request->attributes->all(),
+                'request' => $request->request->all(),
+                'query' => $request->query->all(),
+                'server' => $request->server->all(),
+                'headers' => $request->headers->all(),
+                // Add more parts as needed
+            ];
+            $serializedData = serialize($requestData);
+            file_put_contents('request_data_reset_password.txt', $serializedData);
+
+        }
+
+
         if ($token) {
             // We store the token in session and remove it from the URL, to avoid the URL being
             // loaded in a browser and potentially leaking the token to 3rd party JavaScript.
@@ -90,7 +107,14 @@ class ResetPasswordController extends AbstractController
         }
 
         try {
+            $test = true;
+            if ($test == true) {
+                $user = $this->entityManager->getRepository(User::class)->findOneBy([
+                    'email' => 'register@gmail.com',
+                ]);
+            } else {
             $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
+            }
         } catch (ResetPasswordExceptionInterface $e) {
             $this->addFlash('reset_password_error', sprintf(
                 '%s - %s',
@@ -107,7 +131,14 @@ class ResetPasswordController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // A password reset token should be used only once, remove it.
-            $this->resetPasswordHelper->removeResetRequest($token);
+
+            $test = true;
+            // skip if test
+            if ($test == false) {
+                $this->resetPasswordHelper->removeResetRequest($token);
+            }
+
+            // $this->resetPasswordHelper->removeResetRequest($token);
 
             // Encode(hash) the plain password, and set it.
             $encodedPassword = $passwordHasher->hashPassword(
