@@ -42,18 +42,7 @@ class EmailVerifier
      */
     public function handleEmailConfirmation(Request $request, UserInterface $user): void
     {
-                // $requestData = [
-        //     'attributes' => $request->attributes->all(),
-        //     'request' => $request->request->all(),
-        //     'query' => $request->query->all(),
-        //     'server' => $request->server->all(),
-        //     'headers' => $request->headers->all(),
-        //     // Add more parts as needed
-        // ];
-        // $serializedData = serialize($requestData);
-        // file_put_contents('request_data.txt', $serializedData);
-        
-        
+
         $this->verifyEmailHelper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getEmail());
 
         $user->setIsVerified(true);
