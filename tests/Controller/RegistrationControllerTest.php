@@ -48,7 +48,19 @@ class RegistrationControllerTest extends WebTestCase
 
         $this->emailVerifier = new EmailVerifier($this->verifyEmailHelper, $this->mailer, $this->entityManager);
 
-        $this->registrationController = new RegistrationController($this->emailVerifier);
+        $this->registrationController = $this->createPartialMock(
+            RegistrationController::class,
+            ['getUser', 'addFlash']
+        );
+
+        $this->registrationController->method('addFlash')->willReturnCallback(function() {});
+
+        // Use reflection to change the accessibility of $emailVerifier property
+        $reflection = new \ReflectionClass(RegistrationController::class);
+        $property = $reflection->getProperty('emailVerifier');
+        $property->setAccessible(true);
+        $property->setValue($this->registrationController, $this->emailVerifier);
+        
     }
 
     
@@ -103,6 +115,8 @@ class RegistrationControllerTest extends WebTestCase
             ->getRepository(User::class)
             ->findOneBy(['email' => 'register@gmail.com']);
 
+        $this->registrationController->method('getUser')->willReturn($user);
+
         // sets the user to not verified
         $user->setIsVerified(false);
 
@@ -110,6 +124,8 @@ class RegistrationControllerTest extends WebTestCase
 
         // create a mock of the translator
         $translator = $this->createMock(TranslatorInterface::class);
+
+        
 
         $this->registrationController->verifyUserEmail($this->request, $translator);
 
