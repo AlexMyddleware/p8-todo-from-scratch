@@ -9,6 +9,7 @@ use App\Controller\RegistrationController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 
@@ -50,10 +51,12 @@ class RegistrationControllerTest extends WebTestCase
 
         $this->registrationController = $this->createPartialMock(
             RegistrationController::class,
-            ['getUser', 'addFlash']
+            ['getUser', 'addFlash', 'redirectToRoute']
         );
 
         $this->registrationController->method('addFlash')->willReturnCallback(function() {});
+        // redirect to route will return to the homepage in the form of a RedirectResponse
+        $this->registrationController->method('redirectToRoute')->willReturn(new RedirectResponse('/'));
 
         // Use reflection to change the accessibility of $emailVerifier property
         $reflection = new \ReflectionClass(RegistrationController::class);
@@ -124,8 +127,6 @@ class RegistrationControllerTest extends WebTestCase
 
         // create a mock of the translator
         $translator = $this->createMock(TranslatorInterface::class);
-
-        
 
         $this->registrationController->verifyUserEmail($this->request, $translator);
 
