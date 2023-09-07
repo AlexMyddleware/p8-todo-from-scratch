@@ -17,7 +17,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class RegistrationControllerTest extends WebTestCase
 {
-
     private EntityManagerInterface $entityManager;
     private $client;
     private $request;
