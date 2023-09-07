@@ -30,6 +30,12 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
             ->get('doctrine')
             ->getManager();
 
+        // empty the database after each test
+        $this->entityManager->getConnection()->executeStatement('DELETE FROM reset_password_request');
+
+        // reset the auto-increment
+        $this->entityManager->getConnection()->executeStatement('ALTER TABLE reset_password_request AUTO_INCREMENT = 1');
+
     }
     public function testPasswordRecovery(): void
     {
@@ -86,11 +92,19 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
         // get a user with a valid id from the email
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'anonymous@gmail.com']);
 
+        $datetime  =  new DateTimeImmutable();
+        $selector = 'selector';
+
+        $resetPasswordRequest = new ResetPasswordRequest($user, $datetime, $selector, 'hashedToken');
+        $resetPasswordRequestRepository = $this->entityManager->getRepository(ResetPasswordRequest::class);
+
+        // save the password request
+        $resetPasswordRequestRepository->save($resetPasswordRequest, true);
+
         // find an existing password request
         $resetPasswordRequest = $this->entityManager->getRepository(ResetPasswordRequest::class)->findOneBy(['user' => $user]);
 
         // get the password request repository
-        $resetPasswordRequestRepository = $this->entityManager->getRepository(ResetPasswordRequest::class);
 
         // remove the password request
         $resetPasswordRequestRepository->remove($resetPasswordRequest, true);
