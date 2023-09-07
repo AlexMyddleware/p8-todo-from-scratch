@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Tests\Repository;
+use App\Entity\User;
+use DateTimeImmutable;
+use Symfony\Component\Mime\Email;
+use App\Entity\ResetPasswordRequest;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 
 
 
@@ -52,6 +55,50 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
         
         // check that the response contains a p with the text "If an account matching your email exists"
         $this->assertSelectorTextContains('p', 'If an account matching your email exists');
+
+    }
+
+    // test the save function
+    public function testSave(): void
+    {
+        // get a user with a valid id from the email
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'anonymous@gmail.com']);
+
+        $datetime  =  new DateTimeImmutable();
+        $selector = 'selector';
+
+        $resetPasswordRequest = new ResetPasswordRequest($user, $datetime, $selector, 'hashedToken');
+
+        // get the password request repository
+        $resetPasswordRequestRepository = $this->entityManager->getRepository(ResetPasswordRequest::class);
+
+        // save the password request
+        $resetPasswordRequestRepository->save($resetPasswordRequest, true);
+
+        // check that the password request has been saved
+        $this->assertNotNull($resetPasswordRequest->getId());
+
+    }
+
+    // test the remove function
+    public function testRemove(): void
+    {
+        // get a user with a valid id from the email
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'anonymous@gmail.com']);
+
+        // find an existing password request
+        $resetPasswordRequest = $this->entityManager->getRepository(ResetPasswordRequest::class)->findOneBy(['user' => $user]);
+
+        // get the password request repository
+        $resetPasswordRequestRepository = $this->entityManager->getRepository(ResetPasswordRequest::class);
+
+        // remove the password request
+        $resetPasswordRequestRepository->remove($resetPasswordRequest, true);
+
+        // check that the password request has been removed
+        $this->assertNull($resetPasswordRequest->getId());
+
+
 
     }
     
