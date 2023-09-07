@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 
 class RegistrationControllerTest extends WebTestCase
@@ -161,6 +162,40 @@ class RegistrationControllerTest extends WebTestCase
         $this->registrationController->method('redirectToRoute')->willReturnCallback(function() {});
         $response = $this->registrationController->verifyUserEmail($this->request, $translator);
         $this->assertEquals('/', $response->headers->get('location'));
+        
+    }
+
+    // function to test the user set password function
+    public function testSetPassword(): void
+    {
+        // get the user
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'anonymous@gmail.com']);
+        
+        // get the current password of the user
+        $currentPassword = $user->getPassword();
+
+        // get mock of the password hasher
+        $userPasswordHasher = $this->createMock(UserPasswordHasherInterface::class);
+
+        // set the password to a new password
+        $user->setPassword(
+            
+                                $userPasswordHasher->hashPassword(
+                                    $user,
+                                    "newpassword"
+                                )
+                            );
+
+
+        // refresh the user
+        $userRefreshed = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'anonymous@gmail.com']);
+        
+        // assert that the password has changed
+        $this->assertNotEquals($currentPassword, $userRefreshed->getPassword());
         
     }
 }
