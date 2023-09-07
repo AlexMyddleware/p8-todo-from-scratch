@@ -138,4 +138,29 @@ class RegistrationControllerTest extends WebTestCase
             // assert that the user is verified
         $this->assertTrue($userVerified->isVerified());
     }
+    // function to test the verifyUserEmail function in the registration controller
+    public function testVerifyUserEmailNotLoggedIn(): void
+    {
+        // get the user
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'register@gmail.com']);
+
+
+        // sets the user to not verified
+        $user->setIsVerified(false);
+
+        $this->assertFalse($user->isVerified());
+
+        // create a mock of the translator
+        $translator = $this->createMock(TranslatorInterface::class);
+
+        $this->registrationController->method('getUser')->willReturn(null);
+        
+        $this->registrationController->method('addFlash')->willReturnCallback(function() {});
+        $this->registrationController->method('redirectToRoute')->willReturnCallback(function() {});
+        $response = $this->registrationController->verifyUserEmail($this->request, $translator);
+        $this->assertEquals('/', $response->headers->get('location'));
+        
+    }
 }
