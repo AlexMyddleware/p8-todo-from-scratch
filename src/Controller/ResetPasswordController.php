@@ -36,6 +36,20 @@ class ResetPasswordController extends BaseController
     ) {
     }
 
+    // public function to set the reset password helper
+    public function setResetPasswordHelper(ResetPasswordHelperInterface $resetPasswordHelper) {
+        $this->resetPasswordHelper = $resetPasswordHelper;
+    }
+
+    // public function to get the reset password helper
+    public function getResetPasswordHelper() {
+        return $this->resetPasswordHelper;
+    }
+
+    protected function proxyGetTokenObjectFromSession() {
+        return $this->getTokenObjectFromSession();
+    }
+
     /**
      * Display & process form to request a password reset.
      */
@@ -66,7 +80,7 @@ class ResetPasswordController extends BaseController
     {
         // Generate a fake token if the user does not exist or someone hit this page directly.
         // This prevents exposing whether or not a user was found with the given email address or not
-        if (null === ($resetToken = $this->getTokenObjectFromSession())) {
+        if (null === ($resetToken = $this->proxyGetTokenObjectFromSession())) {
             $resetToken = $this->resetPasswordHelper->generateFakeResetToken();
         }
 
