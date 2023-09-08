@@ -69,18 +69,22 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
     public function testCheckEmailWithNullToken()
     {
 
-        // mock the ResetPasswordHelper
-        $resetPasswordHelper = $this->getMockBuilder(ResetPasswordHelperInterface::class)
-            ->getMock();
+        $mockedResetPasswordHelper = $this->createMock(ResetPasswordHelperInterface::class);
+        $mockedResetPasswordHelper
+            ->expects($this->once())
+            ->method('generateFakeResetToken')
+            ->willReturn('your_fake_token_or_object');
 
-        // get a partial mock of the ResetPasswordController and only mock the getTokenObjectFromSession method
+        // Mocking ResetPasswordController
         $resetPasswordController = $this->getMockBuilder(ResetPasswordController::class)
-            ->setConstructorArgs([$resetPasswordHelper, $this->entityManager])
-            ->onlyMethods(['proxyGetTokenObjectFromSession'])
-            ->getMock();
+        ->disableOriginalConstructor()
+        ->onlyMethods(['proxyGetTokenObjectFromSession'])
+        ->getMock();
         
         // method getTokenObjectFromSession returns null
         $resetPasswordController->method('proxyGetTokenObjectFromSession')->willReturn(null);
+
+        $resetPasswordController->setResetPasswordHelper($mockedResetPasswordHelper);
 
         $crawler = $this->client->request('GET', '/login');
 
