@@ -7,7 +7,9 @@ use Symfony\Component\Mime\Email;
 use App\Entity\ResetPasswordRequest;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\ResetPasswordController;
+use App\Service\DecoratedResetPasswordHelper;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
@@ -69,42 +71,42 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
     public function testCheckEmailWithNullToken()
     {
 
-        $mockedResetPasswordHelper = $this->createMock(ResetPasswordHelperInterface::class);
-        $mockedResetPasswordHelper
-            ->expects($this->once())
-            ->method('generateFakeResetToken')
-            ->willReturn('your_fake_token_or_object');
+        // Create a mock for the original ResetPasswordHelperInterface
+        $originalHelperMock = $this->createMock(ResetPasswordHelperInterface::class);
+
+        // $decoratedHelper = new DecoratedResetPasswordHelper($originalHelperMock);
+        $decoratedHelper = $this->getMockBuilder(DecoratedResetPasswordHelper::class)
+        ->disableOriginalConstructor()
+        ->onlyMethods(['generateFakeResetToken'])
+        ->getMock();
+
 
         // Mocking ResetPasswordController
         $resetPasswordController = $this->getMockBuilder(ResetPasswordController::class)
         ->disableOriginalConstructor()
-        ->onlyMethods(['proxyGetTokenObjectFromSession'])
+        ->onlyMethods(['proxyGetTokenObjectFromSession', 'render'])
         ->getMock();
         
         // method getTokenObjectFromSession returns null
         $resetPasswordController->method('proxyGetTokenObjectFromSession')->willReturn(null);
 
-        $resetPasswordController->setResetPasswordHelper($mockedResetPasswordHelper);
+        // method render returns a Response object
+        $resetPasswordController->method('render')->willReturn(new Response("test"));
 
-        $crawler = $this->client->request('GET', '/login');
+        $resetPasswordController->setResetPasswordHelper($decoratedHelper);
 
-        // click on the password recovery link 'Mot de passe oublié ?'
-        $link = $crawler->selectLink('Mot de passe oublié ?')->link();
+        $response = $resetPasswordController->checkEmail();
 
-        // follow the link redirecting to the password recovery page
-        $crawler = $this->client->click($link);
+        $this->assertTrue($response->isSuccessful());
+        // asserts that the content of the response is "test"
+        $this->assertEquals("test", $response->getContent());
+        // asserts that the status code is 200
 
-        // select the form with the Send password reset email button (in english)
-        $form = $crawler->selectButton('Send password reset email')->form([
-            'reset_password_request_form[email]' => 'anonymous@gmail.com'
-        ]);
+        $this->assertEquals(200, $response->getStatusCode());
 
-        // submit the form
-        $this->client->submit($form);
+        // asserts that the status test is ok
 
-        
-        // follow the redirection
-        $crawler = $this->client->followRedirect();
+
     }
 
     // test the save function

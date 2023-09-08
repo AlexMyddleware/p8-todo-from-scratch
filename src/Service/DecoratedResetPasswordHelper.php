@@ -1,7 +1,10 @@
 <?php
 
+namespace App\Service;
+
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
+
 
 
 class DecoratedResetPasswordHelper implements ResetPasswordHelperInterface {
