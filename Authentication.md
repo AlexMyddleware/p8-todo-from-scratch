@@ -36,6 +36,51 @@ user
 | ---: | --- | --- | --- | ---: | --- | --- | 
 | 67 | anonymous@gmail.com | ["ROLE_USER"] | $2y$13$slPqCRSJzU7ITw2K.9USI.zes298ofakeencodedpasswordmsQXO | 1 | John Doe | https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png | 
 
+## Security.yaml
+
+It is crucial to understand this configuration file, because it handles many security aspects of the application. It is located in config/packages/security.yaml. It is used to configure the security system of the application. 
+
+password_hashers: this commands the selection of the password hashers for the application. The auto parameters makes it choose the best one for the application. If you wanted, you could select a specific one, such as bcrypt or argon2i.
+
+providers: a provider is a way to get the user information. In this case, we are using the entity provider, which means that the user information is stored in the database
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+
+The entity provider is configured in the entity section. The entity provider is configured to use the User entity, and the property that will be used to identify the user is the email. This means that when you login, you will need to provide the email (and the password). The password will be hashed and compared to the hashed password in the database. If they match, you will be logged in. If you wanted to use a different property to identify the user, you could use the username property instead. You would then need to change the login form to use the username instead of the email. You would also need to change the User entity to make sure that the username is unique.
+
+firewalls: You may already know that a firewall is a software that is used to block potentially problematic connections. the pattern
+
+pattern: ^/(_(profiler|wdt)|css|images|js)/
+
+means that when we are in this pattern of url, we disable the security. This is used to allow the profiler, the symfony bar, to be displayed. If we didn't do that, we would not be able to see the profiler. 
+
+main: the main section is effective in all cases. the lazy true options means that we load the user when you fetch it, not just from the session. The provider app_user_provider is what we use to access the user. 
+
+form_login:
+                # "app_login" is the name of the route created previously
+                login_path: app_login
+                check_path: app_login
+            logout:
+                path: app_logout
+
+
+This is used to configure where the user will be redirected when he logs in and when he logs out. The login_path is where the user will be redirected when he tries to access a page that requires him to be logged in. The check_path is where the user will be redirected when he tries to login. The logout path is where the user will be redirected when he logs out. app_login and app_logout are the name of the routes for the login and logout functions. For the login, it is in LoginController.php
+#[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
+public function index(AuthenticationUtils $authenticationUtils): Response
+
+
+access_control: These are rules for restricting access based on URL patterns and roles. The commented-out examples show how you might restrict access to certain paths based on user roles.
+For instance, # - { path: ^/admin, roles: ROLE_ADMIN } means that you would have to have the role ROLE_ADMIN to access the /admin path. If you don't have this role, you will be redirected to the login page.
+
+when@test:
+
+This is used to configure the security for the test environment. The parameter here is the password hashing options which are less secure than in the prod environment. This is because we don't want to waste time and ressources hashing the password in the test environment.
+
 ## Advice for beginners
 1. Be careful about front and back
 if you need to make a condition for a specific action, such as something only admins can do, make sure that you have a check both in the twig template AND the php logic. Just because I cannot see the button in the twig template doesn't mean I cannot access the page by typing the url in the browser. You need to make sure that the php logic is also protected, because I can still access the page by typing the url in the browser or by using postman.
