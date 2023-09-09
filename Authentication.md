@@ -53,7 +53,7 @@ providers: a provider is a way to get the user information. In this case, we are
 
 The entity provider is configured in the entity section. The entity provider is configured to use the User entity, and the property that will be used to identify the user is the email. This means that when you login, you will need to provide the email (and the password). The password will be hashed and compared to the hashed password in the database. If they match, you will be logged in. If you wanted to use a different property to identify the user, you could use the username property instead. You would then need to change the login form to use the username instead of the email. You would also need to change the User entity to make sure that the username is unique.
 
-firewalls: You may already know that a firewall is a software that is used to block potentially problematic connections. the pattern
+firewalls: You may already know that a firewall is a software that is used to block potentially problematic connections. You have one for your computer. the pattern
 
 pattern: ^/(_(profiler|wdt)|css|images|js)/
 
