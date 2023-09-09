@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Entity\User;
+use ReflectionMethod;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\Form;
 use App\Form\ChangePasswordFormType;
@@ -11,6 +12,7 @@ use Symfony\Component\Form\FormInterface;
 use Doctrine\Persistence\ObjectRepository;
 use App\Controller\ResetPasswordController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -34,9 +36,14 @@ class ResetPasswordControllerTest extends TestCase
     private $resetPasswordHelper;
     private $entityManager;
     private $controller;
+    private $mailer;
 
     protected function setUp(): void
     {
+
+        // create mock of MailerInterface 
+        $this->mailer = $this->createMock(MailerInterface::class);
+
         $this->resetPasswordHelper = $this->createMock(ResetPasswordHelperInterface::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->controller = $this->getMockBuilder(ResetPasswordController::class)
@@ -184,6 +191,90 @@ class ResetPasswordControllerTest extends TestCase
         $this->assertInstanceOf(RedirectResponse::class, $response);
 
         $this->assertStringContainsStringIgnoringCase('<title>Redirecting to some_fake_url</title>', $response->getContent());
+    }
+
+    public function testErrorGenerateResetToken()
+    {
+
+        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
+
+
+        // Setting up request
+        $request = $this->createMock(Request::class);
+
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($request);
+
+        // Setting up Password Hasher
+        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
+        $passwordHasher->method('hashPassword')
+            ->willReturn('hashed_password');
+
+        // Simulate the form submission
+        $form = $this->createMock(Form::class);
+        $form->method('isSubmitted')->willReturn(true);
+        $form->method('isValid')->willReturn(true);
+        $form->method('handleRequest')->willReturnSelf();
+        $form->method('get')->willReturn($form);
+        $form->method('getData')->willReturn('plain_password');
+
+        // Mock FormFactory
+        $formFactory = $this->createMock(FormFactoryInterface::class);
+        $formFactory->method('create')->willReturn($form);
+
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('generate')->willReturn('some_fake_url');
+
+        $this->controller->setContainer($this->getContainer([
+            'form.factory' => $formFactory,
+            'request_stack' => $requestStack,
+            'router' => $router,
+        ]));
+
+        // Mock user entity
+        $user = $this->createMock(User::class);
+        $user->method('getEmail')->willReturn('user@example.com');
+
+        // Mocking entity repository to return mocked user
+        $userRepository = $this->createMock(ObjectRepository::class);
+        $userRepository->method('findOneBy')->willReturn($user);
+
+        // Mock TranslatorInterface
+        $mockTranslator = $this->createMock(TranslatorInterface::class);
+        $mockTranslator->method('trans')
+            ->willReturn('Some translation'); // Return a dummy translation
+
+        $this->entityManager->method('getRepository')
+            ->willReturn($userRepository);
+
+        // Mocking ResetPasswordHelper's validateTokenAndFetchUser
+        $this->resetPasswordHelper->method('generateResetToken')
+        ->willThrowException($this->createMock(ResetPasswordExceptionInterface::class));
+
+
+        $emailFormData = 'anonymous@gmail.com';
+
+        // 
+        // 
+        // $method = new ReflectionMethod(ResetPasswordController::class, 'processSendingPasswordResetEmail');
+        // $method->setAccessible(true);
+
+        // $result = $method->invokeArgs($resetPasswordController, [$emailFormData, $mailer, $mockTranslator]);
+        // 
+        // 
+        // use reflection to call private method processSendingPasswordResetEmail
+        $method = new ReflectionMethod(ResetPasswordController::class, 'processSendingPasswordResetEmail');
+
+        $method->setAccessible(true);
+
+        $result = $method->invokeArgs($this->controller, [$emailFormData, $this->mailer, $mockTranslator]);
+
+        // $response = $this->controller->processSendingPasswordResetEmail($emailFormData, $this->mailer, $mockTranslator);
+
+        // Assertions
+        $this->assertInstanceOf(RedirectResponse::class, $result);
+
+        $this->assertStringContainsStringIgnoringCase('<title>Redirecting to some_fake_url</title>', $result->getContent());
     }
 
     public function testRemoveTokenIfPresent()
