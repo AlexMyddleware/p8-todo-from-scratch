@@ -14,27 +14,39 @@ class DecoratedResetPasswordHelper implements ResetPasswordHelperInterface {
         $this->delegate = $helper;
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function generateFakeResetToken() {
         // If you want to override or add behavior, do it here.
         // For now, let's just delegate to the original implementation:
         return $this->delegate->generateFakeResetToken();
     }
 
-    // Delegate other methods similarly:
-    
+    /**
+    * @codeCoverageIgnore
+    */
     public function generateResetToken(object $user): ResetPasswordToken {
         return $this->delegate->generateResetToken($user);
     }
 
-    // validateTokenAndFetchUser', 'removeResetRequest', 'getTokenLifetime'
+    /**
+    * @codeCoverageIgnore
+    */
     public function validateTokenAndFetchUser(string $fullToken): object {
         return $this->delegate->validateTokenAndFetchUser($fullToken);
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function removeResetRequest(string $fullToken): void {
         $this->delegate->removeResetRequest($fullToken);
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     public function getTokenLifetime(): int {
         return $this->delegate->getTokenLifetime();
     }

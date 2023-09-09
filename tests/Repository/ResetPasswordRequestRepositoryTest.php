@@ -109,6 +109,37 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
 
     }
 
+    public function testGetResetPasswordHelper()
+    {
+
+        // Create a mock for the original ResetPasswordHelperInterface
+        $originalHelperMock = $this->createMock(ResetPasswordHelperInterface::class);
+
+        // $decoratedHelper = new DecoratedResetPasswordHelper($originalHelperMock);
+        $decoratedHelper = $this->getMockBuilder(DecoratedResetPasswordHelper::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['generateFakeResetToken'])
+            ->getMock();
+
+
+        // Mocking ResetPasswordController
+        $resetPasswordController = $this->getMockBuilder(ResetPasswordController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['proxyGetTokenObjectFromSession', 'render'])
+            ->getMock();
+
+        // method getTokenObjectFromSession returns null
+        $resetPasswordController->method('proxyGetTokenObjectFromSession')->willReturn(null);
+
+        // method render returns a Response object
+        $resetPasswordController->method('render')->willReturn(new Response("test"));
+
+        $resetPasswordController->setResetPasswordHelper($decoratedHelper);
+
+        // assert that getresetpassword helper is an instance of DecoratedResetPasswordHelper
+        $this->assertInstanceOf(DecoratedResetPasswordHelper::class, $resetPasswordController->getResetPasswordHelper());
+    }
+
     // test the save function
     public function testSave(): void
     {

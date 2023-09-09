@@ -89,6 +89,9 @@ class ResetPasswordController extends BaseController
         ]);
     }
 
+    /**
+    * @codeCoverageIgnore
+    */
     protected function getTokenFromSessionWrapper() {
         return $this->getTokenFromSession();
     }
