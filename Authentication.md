@@ -57,7 +57,7 @@ firewalls: You may already know that a firewall is a software that is used to bl
 
 pattern: ^/(_(profiler|wdt)|css|images|js)/
 
-means that when we are in this pattern of url, we disable the security. This is used to allow the profiler, the symfony bar, to be displayed. If we didn't do that, we would not be able to see the profiler. 
+means that when we are in this pattern of url (all of the js, css and images for the _profiler), we disable the security. This is used to allow the profiler, the symfony bar, to be displayed. If we didn't do that, we would not be able to see the profiler bar or the links to the profiler in the request list for instance.
 
 main: the main section is effective in all cases. the lazy true options means that we load the user when you fetch it, not just from the session. The provider app_user_provider is what we use to access the user. 
 
