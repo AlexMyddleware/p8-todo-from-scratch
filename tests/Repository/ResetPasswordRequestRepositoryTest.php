@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Tests\Repository;
+use is;
 use App\Entity\User;
+use ReflectionMethod;
 use DateTimeImmutable;
 use Symfony\Component\Mime\Email;
 use App\Entity\ResetPasswordRequest;
@@ -11,6 +13,7 @@ use App\Service\DecoratedResetPasswordHelper;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
@@ -41,6 +44,7 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
         $this->entityManager->getConnection()->executeStatement('ALTER TABLE reset_password_request AUTO_INCREMENT = 1');
 
     }
+
     public function testPasswordRecovery(): void
     {
         $crawler = $this->client->request('GET', '/login');
@@ -65,6 +69,45 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
         
         // check that the response contains a p with the text "If an account matching your email exists"
         $this->assertSelectorTextContains('p', 'If an account matching your email exists');
+
+    }
+
+    public function testNullUserInProcessSendingPasswordResetEmail(): void
+    {
+        
+        // controller mock
+        $resetPasswordController = $this->getMockBuilder(ResetPasswordController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getUserfromEmail', 'render', 'redirectToRoute'])
+            ->getMock();
+
+        // method getUserfromEmail returns null
+        $resetPasswordController->method('getUserfromEmail')->willReturn(null);
+
+
+        $emailFormData = 'anonymous@gmail.com';
+
+        // create a mock of the MailerInterface
+        $mailer = $this->getMockBuilder(MailerInterface::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['send'])
+            ->getMock();
+
+        // create a mock of the TranslatorInterface
+        $mockTranslator = $this->getMockBuilder('Symfony\Contracts\Translation\TranslatorInterface')->getMock();
+
+        // call the processSendingPasswordResetEmail method
+        // $response = $resetPasswordController->processSendingPasswordResetEmail($emailFormData, $mailer, $mockTranslator);
+
+        $method = new ReflectionMethod(ResetPasswordController::class, 'processSendingPasswordResetEmail');
+        $method->setAccessible(true);
+
+        $result = $method->invokeArgs($resetPasswordController, [$emailFormData, $mailer, $mockTranslator]);
+
+        // dump($result);
+        // assert thtat the response is a RedirectResponse
+        $this->assertInstanceOf(RedirectResponse::class, $result);
+
 
     }
 

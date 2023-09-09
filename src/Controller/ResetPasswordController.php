@@ -167,11 +167,15 @@ class ResetPasswordController extends BaseController
         ]);
     }
 
+    public function getUserfromEmail(string $email) {
+        return $this->entityManager->getRepository(User::class)->findOneBy([
+            'email' => $email,
+        ]);
+    }
+
     private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer, TranslatorInterface $translator): RedirectResponse
     {
-        $user = $this->entityManager->getRepository(User::class)->findOneBy([
-            'email' => $emailFormData,
-        ]);
+        $user = $this->getUserfromEmail($emailFormData);
 
         // Do not reveal whether a user account was found or not.
         if (!$user) {
