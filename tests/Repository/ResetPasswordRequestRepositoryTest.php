@@ -2,6 +2,7 @@
 
 namespace App\Tests\Repository;
 use is;
+use Exception;
 use App\Entity\User;
 use ReflectionMethod;
 use DateTimeImmutable;
@@ -16,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 
 
 
@@ -107,8 +109,30 @@ class ResetPasswordRequestRepositoryTest extends WebTestCase
         // dump($result);
         // assert thtat the response is a RedirectResponse
         $this->assertInstanceOf(RedirectResponse::class, $result);
+    }
 
+    public function testHandleResetPasswordException(){
+        // controller mock
+        $resetPasswordController = $this->getMockBuilder(ResetPasswordController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getUserfromEmail', 'render', 'redirectToRoute', 'addFlash'])
+            ->getMock();
 
+        // call method handleResetPasswordException
+        $method = new ReflectionMethod(ResetPasswordController::class, 'handleResetPasswordException');
+        $method->setAccessible(true);
+
+        $exceptionMock = $this->getMockBuilder('SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface')
+    ->getMock();
+
+        $exceptionMock->method('getReason')->willReturn('Some reason for testing');
+
+        $resetPasswordController->method('addFlash')->willReturnCallback(function () {
+        });
+
+        $result = $method->invokeArgs($resetPasswordController, [$exceptionMock, $this->getMockBuilder('Symfony\Contracts\Translation\TranslatorInterface')->getMock(), 'test', 'test']);
+
+        $this->assertInstanceOf(RedirectResponse::class, $result);
     }
 
     public function testCheckEmailWithNullToken()
