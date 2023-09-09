@@ -150,8 +150,6 @@ class ResetPasswordController extends BaseController
                 ResetPasswordExceptionInterface::MESSAGE_PROBLEM_VALIDATE, 
                 'app_forgot_password_request'
             );
-
-            return $this->redirectToRoute('app_forgot_password_request');
         }
 
         // The token is valid; allow the user to change their password.
