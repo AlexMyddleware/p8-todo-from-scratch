@@ -41,6 +41,8 @@ class ResetPasswordControllerTest extends TestCase
     private $request;
     private $requestStack;
     private $passwordHasher;
+    private $form;
+    private $formFactory;
 
     protected function setUp(): void
     {
@@ -54,6 +56,18 @@ class ResetPasswordControllerTest extends TestCase
         $this->passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
         $this->passwordHasher->method('hashPassword')
             ->willReturn('hashed_password');
+
+        // Simulate the form submission
+        $this->form = $this->createMock(Form::class);
+        $this->form->method('isSubmitted')->willReturn(true);
+        $this->form->method('isValid')->willReturn(true);
+        $this->form->method('handleRequest')->willReturnSelf();
+        $this->form->method('get')->willReturn($this->form);
+        $this->form->method('getData')->willReturn('plain_password');
+
+        // Mock FormFactory
+        $this->formFactory = $this->createMock(FormFactoryInterface::class);
+        $this->formFactory->method('create')->willReturn($this->form);
 
         // create mock of MailerInterface 
         $this->mailer = $this->createMock(MailerInterface::class);
@@ -79,23 +93,13 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->tokensessionwrapperSetReturn('faketokenforregularreset');
 
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
+        
 
         $router = $this->createMock(RouterInterface::class);
         $router->method('generate')->willReturn('some_fake_url');
 
         $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
+            'form.factory' => $this->formFactory,
             'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
@@ -130,6 +134,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->assertStringContainsStringIgnoringCase('<title>Redirecting to some_fake_url</title>', $response->getContent());
     }
+    
     public function testResetFunctionInitialRender()
     {
 
@@ -192,23 +197,11 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->tokensessionwrapperSetReturn('faketokenForErrorValidateTokenAndFetchUser');
 
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
-
         $router = $this->createMock(RouterInterface::class);
         $router->method('generate')->willReturn('some_fake_url');
 
         $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
+            'form.factory' => $this->formFactory,
             'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
@@ -249,23 +242,11 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->tokensessionwrapperSetReturn('faketokenForErrorGenerateResetToken');
 
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
-
         $router = $this->createMock(RouterInterface::class);
         $router->method('generate')->willReturn('some_fake_url');
 
         $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
+            'form.factory' => $this->formFactory,
             'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
@@ -310,23 +291,11 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->tokensessionwrapperSetReturn('faketokenForRemoveTokenIfPresent');
 
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
-
         $router = $this->createMock(RouterInterface::class);
         $router->method('generate')->willReturn('some_fake_url');
 
         $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
+            'form.factory' => $this->formFactory,
             'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
@@ -364,23 +333,11 @@ class ResetPasswordControllerTest extends TestCase
 
     public function testErrorNullTokenFromSessionWrapper()
     {
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
-
         $router = $this->createMock(RouterInterface::class);
         $router->method('generate')->willReturn('some_fake_url');
 
         $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
+            'form.factory' => $this->formFactory,
             'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
