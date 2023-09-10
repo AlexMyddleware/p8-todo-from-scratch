@@ -38,9 +38,18 @@ class ResetPasswordControllerTest extends TestCase
     private $entityManager;
     private $controller;
     private $mailer;
+    private $request;
+    private $requestStack;
 
     protected function setUp(): void
     {
+        // Setting up request
+        $this->request = $this->createMock(Request::class);
+
+        
+
+        $this->requestStack = $this->createMock(RequestStack::class);
+        $this->requestStack->method('getCurrentRequest')->willReturn($this->request);
 
         // create mock of MailerInterface 
         $this->mailer = $this->createMock(MailerInterface::class);
@@ -60,13 +69,6 @@ class ResetPasswordControllerTest extends TestCase
     {
 
         $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
-
-
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
 
         // Setting up Password Hasher
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
@@ -90,7 +92,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
+            'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
 
@@ -117,7 +119,7 @@ class ResetPasswordControllerTest extends TestCase
         // We assume that the token session storage was already done
         $token = null;
 
-        $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+        $response = $this->controller->reset($this->request, $passwordHasher, $mockTranslator, $token);
 
         // Assertions
         $this->assertInstanceOf(RedirectResponse::class, $response);
@@ -129,12 +131,6 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
 
-
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
 
         // Setting up Password Hasher
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
@@ -158,7 +154,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
+            'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
 
@@ -187,7 +183,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->method('render')->willReturn(new Response("test"));
 
-        $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+        $response = $this->controller->reset($this->request, $passwordHasher, $mockTranslator, $token);
 
         // asserts that the response content contains the string 'test'
         $this->assertStringContainsString('test', $response->getContent());
@@ -197,13 +193,6 @@ class ResetPasswordControllerTest extends TestCase
     {
 
         $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
-
-
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
 
         // Setting up Password Hasher
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
@@ -227,7 +216,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
+            'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
 
@@ -254,7 +243,7 @@ class ResetPasswordControllerTest extends TestCase
         // We assume that the token session storage was already done
         $token = null;
 
-        $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+        $response = $this->controller->reset($this->request, $passwordHasher, $mockTranslator, $token);
 
         // Assertions
         $this->assertInstanceOf(RedirectResponse::class, $response);
@@ -266,13 +255,6 @@ class ResetPasswordControllerTest extends TestCase
     {
 
         $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
-
-
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
 
         // Setting up Password Hasher
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
@@ -296,7 +278,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
+            'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
 
@@ -351,12 +333,6 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforremovetokentest');
 
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
-
         // Setting up Password Hasher
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
         $passwordHasher->method('hashPassword')
@@ -379,7 +355,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
+            'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
 
@@ -406,7 +382,7 @@ class ResetPasswordControllerTest extends TestCase
         // We assume that the token session storage was already done
         $token = 'faketokentest';
 
-        $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+        $response = $this->controller->reset($this->request, $passwordHasher, $mockTranslator, $token);
 
         // Assertions
         $this->assertInstanceOf(RedirectResponse::class, $response);
@@ -416,12 +392,6 @@ class ResetPasswordControllerTest extends TestCase
 
     public function testErrorNullTokenFromSessionWrapper()
     {
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
-
         // Setting up Password Hasher
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
         $passwordHasher->method('hashPassword')
@@ -444,7 +414,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
+            'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
 
@@ -477,7 +447,7 @@ class ResetPasswordControllerTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
         $this->expectExceptionMessage('No reset password token found in the URL or in the session.');
         
-        $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+        $this->controller->reset($this->request, $passwordHasher, $mockTranslator, $token);
 
     }
 
