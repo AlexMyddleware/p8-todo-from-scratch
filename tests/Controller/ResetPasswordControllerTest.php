@@ -69,10 +69,14 @@ class ResetPasswordControllerTest extends TestCase
 
     }
 
+    public function tokensessionwrapperSetReturn($token) {
+        $this->controller->method('getTokenFromSessionWrapper')->willReturn($token);
+    }
+
     public function testResetFunction()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
+        $this->tokensessionwrapperSetReturn('faketokenforregularreset');
 
         // Setting up Password Hasher
         
@@ -131,7 +135,7 @@ class ResetPasswordControllerTest extends TestCase
     public function testResetFunctionInitialRender()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
+        $this->tokensessionwrapperSetReturn('TokenForInitialRender');
 
         // Simulate the form submission
         $form = $this->createMock(Form::class);
@@ -188,7 +192,7 @@ class ResetPasswordControllerTest extends TestCase
     public function testErrorValidateTokenAndFetchUser()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
+        $this->tokensessionwrapperSetReturn('faketokenForErrorValidateTokenAndFetchUser');
 
         // Simulate the form submission
         $form = $this->createMock(Form::class);
@@ -245,7 +249,7 @@ class ResetPasswordControllerTest extends TestCase
     public function testErrorGenerateResetToken()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
+        $this->tokensessionwrapperSetReturn('faketokenForErrorGenerateResetToken');
 
         // Simulate the form submission
         $form = $this->createMock(Form::class);
@@ -317,7 +321,7 @@ class ResetPasswordControllerTest extends TestCase
     public function testRemoveTokenIfPresent()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforremovetokentest');
+        $this->tokensessionwrapperSetReturn('faketokenForRemoveTokenIfPresent');
 
         // Simulate the form submission
         $form = $this->createMock(Form::class);
@@ -417,7 +421,7 @@ class ResetPasswordControllerTest extends TestCase
         // We assume that the token session storage was already done
         $token = null;
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn(null);
+        $this->tokensessionwrapperSetReturn(null);
 
 
         $this->expectException(NotFoundHttpException::class);
