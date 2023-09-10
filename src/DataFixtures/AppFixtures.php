@@ -83,6 +83,29 @@ class AppFixtures extends Fixture
         $adminUserRoleRemoval->setIsVerified(true);
         $manager->persist($adminUserRoleRemoval);
 
+        // create a normal user with the email register@gmail.com
+        $normalUser = new User();
+        $normalUser->setEmail('register@gmail.com');
+        $normalUser->setFullname('Register Doe');
+        $normalUser->setRoles(['ROLE_USER']);
+        
+        // create an encoded password for "passwordregister"
+        $normalUser->setPassword(
+            $this->userPasswordHasher->hashPassword(
+                $normalUser,
+                'passwordregister'
+            )
+        );
+
+        // set photo
+        $normalUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+
+        // set verified to false
+        $normalUser->setIsVerified(false);
+        // persist
+        $manager->persist($normalUser);
+
+
 
         // create one task
         $task = new Task(
