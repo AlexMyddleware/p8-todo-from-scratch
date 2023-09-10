@@ -20,6 +20,7 @@ class AdminSettingControllerTest extends WebTestCase
     private $client;
     private $originalRoles;
     private $crawler;
+    private $form;
 
     protected function setUp(): void
     {
@@ -61,21 +62,24 @@ class AdminSettingControllerTest extends WebTestCase
         $this->crawler = $this->client->request('GET', '/login');
     }
 
+    public function assertForm()
+    {
+        $this->client->submit($this->form);
+        $this->assertTrue($this->client->getResponse()->isRedirect());
+        $this->client->followRedirect();
+        $this->assertResponseIsSuccessful();
+    }
 
     // Function to verify that when the user is logged in as an admin, the link to modify the users is present
     public function testAdminLink(): void
     {
 
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'adminuser@gmail.com',
             '_password' => 'passwordadmin',
         ]);
 
-        $this->client->submit($form);
-
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-        $this->client->followRedirect();
-        $this->assertResponseIsSuccessful();
+        $this->assertForm();
         // test that the site contains the logout button
         $this->assertSelectorExists('a[href="/logout"]');
 
@@ -90,18 +94,12 @@ class AdminSettingControllerTest extends WebTestCase
     public function testAdminLinkNotPresent(): void
     {
 
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'anonymous@gmail.com', // user is not an admin
             '_password' => 'password',
         ]);
 
-        $this->client->submit($form);
-
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-
-        $this->client->followRedirect();
-
-        $this->assertResponseIsSuccessful();
+        $this->assertForm();
 
         // test that the site contains the logout button
         $this->assertSelectorExists('a[href="/logout"]');
