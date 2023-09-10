@@ -117,18 +117,12 @@ class AdminSettingControllerTest extends WebTestCase
     public function testAdminLinkNotAdmin(): void
     {
 
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'anonymous@gmail.com', // user is not an admin
             '_password' => 'password',
         ]);
 
-        $this->client->submit($form);
-
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-
-        $this->client->followRedirect();
-
-        $this->assertResponseIsSuccessful();
+        $this->assertForm();
 
         // test that the site contains the logout button
 
@@ -174,16 +168,13 @@ class AdminSettingControllerTest extends WebTestCase
     public function testAdminPanelShowsListOfUsers(): void
     {
 
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'adminuser@gmail.com',
             '_password' => 'passwordadmin',
         ]);
 
-        $this->client->submit($form);
+        $this->assertForm();
 
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-        $this->client->followRedirect();
-        $this->assertResponseIsSuccessful();
         // test that the site contains the logout button
         $this->assertSelectorExists('a[href="/logout"]');
 
@@ -207,16 +198,13 @@ class AdminSettingControllerTest extends WebTestCase
     public function testShowNonExistentUser(): void
     {
 
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'adminuser@gmail.com',
             '_password' => 'passwordadmin',
         ]);
-
-        $this->client->submit($form);
-
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-        $this->client->followRedirect();
-        $this->assertResponseIsSuccessful();
+        
+        $this->assertForm();
+        
         // test that the site contains the logout button
         $this->assertSelectorExists('a[href="/logout"]');
 
@@ -236,16 +224,13 @@ class AdminSettingControllerTest extends WebTestCase
     public function testEditNonExistentUser(): void
     {
 
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'adminuser@gmail.com',
             '_password' => 'passwordadmin',
         ]);
 
-        $this->client->submit($form);
+        $this->assertForm();
 
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-        $this->client->followRedirect();
-        $this->assertResponseIsSuccessful();
         // test that the site contains the logout button
         $this->assertSelectorExists('a[href="/logout"]');
 
@@ -268,18 +253,12 @@ class AdminSettingControllerTest extends WebTestCase
     {
 
 
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'adminuser@gmail.com',
             '_password' => 'passwordadmin',
         ]);
 
-        $this->client->submit($form);
-
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-
-        $this->client->followRedirect();
-
-        $this->assertResponseIsSuccessful();
+        $this->assertForm();
 
         // test that the site contains the logout button
 
@@ -316,18 +295,12 @@ class AdminSettingControllerTest extends WebTestCase
     // Function to test that if we find a user with the admin role and edit it , it will correctly remove the admin role
     public function testRemoveadminRole(): void
     {
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'adminuser@gmail.com',
             '_password' => 'passwordadmin',
         ]);
 
-        $this->client->submit($form);
-
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-
-        $this->client->followRedirect();
-
-        $this->assertResponseIsSuccessful();
+        $this->assertForm();
 
         // test that the site contains the logout button
 
@@ -389,16 +362,13 @@ class AdminSettingControllerTest extends WebTestCase
     public function testToggleUserRole(): void
     {
 
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'adminuser@gmail.com',
             '_password' => 'passwordadmin',
         ]);
 
-        $this->client->submit($form);
-        
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-        $this->client->followRedirect();
-        $this->assertResponseIsSuccessful();
+        $this->assertForm();
+
         // test that the site contains the logout button
         $this->assertSelectorExists('a[href="/logout"]');
 
@@ -432,18 +402,12 @@ class AdminSettingControllerTest extends WebTestCase
     // Function to verify that if someone tries to access the edit of a user without being an admin, he is redirected to the home page
     public function testAdminLinkNotAdminEdit(): void
     {
-        $form = $this->crawler->selectButton('Se connecter')->form([
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
             '_username' => 'anonymous@gmail.com', // user is not an admin
             '_password' => 'password',
         ]);
 
-        $this->client->submit($form);
-
-        $this->assertTrue($this->client->getResponse()->isRedirect());
-
-        $this->client->followRedirect();
-
-        $this->assertResponseIsSuccessful();
+        $this->assertForm();
 
         // test that the site contains the logout button
 
