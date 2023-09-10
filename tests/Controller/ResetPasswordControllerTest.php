@@ -43,6 +43,7 @@ class ResetPasswordControllerTest extends TestCase
     private $passwordHasher;
     private $form;
     private $formFactory;
+    private $router;
 
     protected function setUp(): void
     {
@@ -65,9 +66,7 @@ class ResetPasswordControllerTest extends TestCase
         $this->form->method('get')->willReturn($this->form);
         $this->form->method('getData')->willReturn('plain_password');
 
-        // Mock FormFactory
-        $this->formFactory = $this->createMock(FormFactoryInterface::class);
-        $this->formFactory->method('create')->willReturn($this->form);
+        
 
         // create mock of MailerInterface 
         $this->mailer = $this->createMock(MailerInterface::class);
@@ -81,6 +80,20 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->method('addFlash')->willReturnCallback(function () {
         });
+
+        // Mock FormFactory
+        $this->formFactory = $this->createMock(FormFactoryInterface::class);
+        $this->formFactory->method('create')->willReturn($this->form);
+
+        // router
+        $this->router = $this->createMock(RouterInterface::class);
+        $this->router->method('generate')->willReturn('some_fake_url');
+
+        $this->controller->setContainer($this->getContainer([
+            'form.factory' => $this->formFactory,
+            'request_stack' => $this->requestStack,
+            'router' => $this->router,
+        ]));
     }
 
     public function tokensessionwrapperSetReturn($token)
@@ -95,14 +108,7 @@ class ResetPasswordControllerTest extends TestCase
 
         
 
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $this->formFactory,
-            'request_stack' => $this->requestStack,
-            'router' => $router,
-        ]));
+        
 
         // Mock user entity
         $user = $this->createMock(User::class);
@@ -134,7 +140,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->assertStringContainsStringIgnoringCase('<title>Redirecting to some_fake_url</title>', $response->getContent());
     }
-    
+
     public function testResetFunctionInitialRender()
     {
 
@@ -197,15 +203,6 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->tokensessionwrapperSetReturn('faketokenForErrorValidateTokenAndFetchUser');
 
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $this->formFactory,
-            'request_stack' => $this->requestStack,
-            'router' => $router,
-        ]));
-
         // Mock user entity
         $user = $this->createMock(User::class);
         $user->method('getEmail')->willReturn('user@example.com');
@@ -241,15 +238,6 @@ class ResetPasswordControllerTest extends TestCase
     {
 
         $this->tokensessionwrapperSetReturn('faketokenForErrorGenerateResetToken');
-
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $this->formFactory,
-            'request_stack' => $this->requestStack,
-            'router' => $router,
-        ]));
 
         // Mock user entity
         $user = $this->createMock(User::class);
@@ -291,15 +279,6 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->tokensessionwrapperSetReturn('faketokenForRemoveTokenIfPresent');
 
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $this->formFactory,
-            'request_stack' => $this->requestStack,
-            'router' => $router,
-        ]));
-
         // Mock user entity
         $user = $this->createMock(User::class);
         $user->method('getEmail')->willReturn('user@example.com');
@@ -333,14 +312,6 @@ class ResetPasswordControllerTest extends TestCase
 
     public function testErrorNullTokenFromSessionWrapper()
     {
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $this->formFactory,
-            'request_stack' => $this->requestStack,
-            'router' => $router,
-        ]));
 
         // Mock user entity
         $user = $this->createMock(User::class);
