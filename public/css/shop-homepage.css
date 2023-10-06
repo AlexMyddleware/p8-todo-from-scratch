@@ -52,3 +52,7 @@ body {
 footer {
     margin: 50px 0;
 }
+
+.user-buttons-row {
+    margin-bottom: 20px;
+}
