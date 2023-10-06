@@ -38,9 +38,38 @@ class ResetPasswordControllerTest extends TestCase
     private $entityManager;
     private $controller;
     private $mailer;
+    private $request;
+    private $requestStack;
+    private $passwordHasher;
+    private $form;
+    private $formFactory;
+    private $router;
+    private $user;
+    private $userRepository;
+    private $mockTranslator;
 
     protected function setUp(): void
     {
+        // Setting up request
+        $this->request = $this->createMock(Request::class);
+
+        $this->requestStack = $this->createMock(RequestStack::class);
+        $this->requestStack->method('getCurrentRequest')->willReturn($this->request);
+
+        // mock for password hasher
+        $this->passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
+        $this->passwordHasher->method('hashPassword')
+            ->willReturn('hashed_password');
+
+        // Simulate the form submission
+        $this->form = $this->createMock(Form::class);
+        $this->form->method('isSubmitted')->willReturn(true);
+        $this->form->method('isValid')->willReturn(true);
+        $this->form->method('handleRequest')->willReturnSelf();
+        $this->form->method('get')->willReturn($this->form);
+        $this->form->method('getData')->willReturn('plain_password');
+
+        
 
         // create mock of MailerInterface 
         $this->mailer = $this->createMock(MailerInterface::class);
@@ -48,98 +77,75 @@ class ResetPasswordControllerTest extends TestCase
         $this->resetPasswordHelper = $this->createMock(ResetPasswordHelperInterface::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->controller = $this->getMockBuilder(ResetPasswordController::class)
-        ->setConstructorArgs([$this->resetPasswordHelper, $this->entityManager])
-        ->onlyMethods(['getTokenFromSession', 'getTokenFromSessionWrapper', 'addFlash', 'render'])
-        ->getMock();
+            ->setConstructorArgs([$this->resetPasswordHelper, $this->entityManager])
+            ->onlyMethods(['getTokenFromSession', 'getTokenFromSessionWrapper', 'addFlash', 'render'])
+            ->getMock();
 
-        $this->controller->method('addFlash')->willReturnCallback(function() {});
+        $this->controller->method('addFlash')->willReturnCallback(function () {
+        });
 
+        // Mock FormFactory
+        $this->formFactory = $this->createMock(FormFactoryInterface::class);
+        $this->formFactory->method('create')->willReturn($this->form);
+
+        // router
+        $this->router = $this->createMock(RouterInterface::class);
+        $this->router->method('generate')->willReturn('some_fake_url');
+
+        $this->controller->setContainer($this->getContainer([
+            'form.factory' => $this->formFactory,
+            'request_stack' => $this->requestStack,
+            'router' => $this->router,
+        ]));
+
+        // user and user repository
+        // Mock user entity
+        $this->user = $this->createMock(User::class);
+        $this->user->method('getEmail')->willReturn('user@example.com');
+
+        // Mocking entity repository to return mocked user
+        $this->userRepository = $this->createMock(ObjectRepository::class);
+        $this->userRepository->method('findOneBy')->willReturn($this->user);
+
+        // Mock TranslatorInterface
+        $this->mockTranslator = $this->createMock(TranslatorInterface::class);
+        $this->mockTranslator->method('trans')
+            ->willReturn('Some translation');
+
+        $this->entityManager->method('getRepository')
+            ->willReturn($this->userRepository);
+    }
+
+    public function tokensessionwrapperSetReturn($token)
+    {
+        $this->controller->method('getTokenFromSessionWrapper')->willReturn($token);
     }
 
     public function testResetFunction()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
+        $this->tokensessionwrapperSetReturn('faketokenforregularreset');
 
-
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
-
-        // Setting up Password Hasher
-        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
-        $passwordHasher->method('hashPassword')
-            ->willReturn('hashed_password');
-
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
-
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
-            'router' => $router,
-        ]));
-
-        // Mock user entity
-        $user = $this->createMock(User::class);
-        $user->method('getEmail')->willReturn('user@example.com');
-
-        // Mocking entity repository to return mocked user
-        $userRepository = $this->createMock(ObjectRepository::class);
-        $userRepository->method('findOneBy')->willReturn($user);
-
-        // Mock TranslatorInterface
-        $mockTranslator = $this->createMock(TranslatorInterface::class);
-        $mockTranslator->method('trans')
-            ->willReturn('Some translation'); // Return a dummy translation
-
-        $this->entityManager->method('getRepository')
-            ->willReturn($userRepository);
 
         // Mocking ResetPasswordHelper's validateTokenAndFetchUser
         $this->resetPasswordHelper->method('validateTokenAndFetchUser')
-            ->willReturn($user);
+            ->willReturn($this->user);
 
         // We assume that the token session storage was already done
         $token = null;
 
-        $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+        $response = $this->controller->reset($this->request, $this->passwordHasher, $this->mockTranslator, $token);
 
         // Assertions
         $this->assertInstanceOf(RedirectResponse::class, $response);
 
         $this->assertStringContainsStringIgnoringCase('<title>Redirecting to some_fake_url</title>', $response->getContent());
     }
+
     public function testResetFunctionInitialRender()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
-
-
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
-
-        // Setting up Password Hasher
-        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
-        $passwordHasher->method('hashPassword')
-            ->willReturn('hashed_password');
+        $this->tokensessionwrapperSetReturn('TokenForInitialRender');
 
         // Simulate the form submission
         $form = $this->createMock(Form::class);
@@ -158,36 +164,20 @@ class ResetPasswordControllerTest extends TestCase
 
         $this->controller->setContainer($this->getContainer([
             'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
+            'request_stack' => $this->requestStack,
             'router' => $router,
         ]));
 
-        // Mock user entity
-        $user = $this->createMock(User::class);
-        $user->method('getEmail')->willReturn('user@example.com');
-
-        // Mocking entity repository to return mocked user
-        $userRepository = $this->createMock(ObjectRepository::class);
-        $userRepository->method('findOneBy')->willReturn($user);
-
-        // Mock TranslatorInterface
-        $mockTranslator = $this->createMock(TranslatorInterface::class);
-        $mockTranslator->method('trans')
-            ->willReturn('Some translation'); // Return a dummy translation
-
-        $this->entityManager->method('getRepository')
-            ->willReturn($userRepository);
-
         // Mocking ResetPasswordHelper's validateTokenAndFetchUser
         $this->resetPasswordHelper->method('validateTokenAndFetchUser')
-            ->willReturn($user);
+            ->willReturn($this->user);
 
         // We assume that the token session storage was already done
         $token = null;
 
         $this->controller->method('render')->willReturn(new Response("test"));
 
-        $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+        $response = $this->controller->reset($this->request, $this->passwordHasher, $this->mockTranslator, $token);
 
         // asserts that the response content contains the string 'test'
         $this->assertStringContainsString('test', $response->getContent());
@@ -196,65 +186,16 @@ class ResetPasswordControllerTest extends TestCase
     public function testErrorValidateTokenAndFetchUser()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
-
-
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
-
-        // Setting up Password Hasher
-        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
-        $passwordHasher->method('hashPassword')
-            ->willReturn('hashed_password');
-
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
-
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
-            'router' => $router,
-        ]));
-
-        // Mock user entity
-        $user = $this->createMock(User::class);
-        $user->method('getEmail')->willReturn('user@example.com');
-
-        // Mocking entity repository to return mocked user
-        $userRepository = $this->createMock(ObjectRepository::class);
-        $userRepository->method('findOneBy')->willReturn($user);
-
-        // Mock TranslatorInterface
-        $mockTranslator = $this->createMock(TranslatorInterface::class);
-        $mockTranslator->method('trans')
-            ->willReturn('Some translation'); // Return a dummy translation
-
-        $this->entityManager->method('getRepository')
-            ->willReturn($userRepository);
+        $this->tokensessionwrapperSetReturn('faketokenForErrorValidateTokenAndFetchUser');
 
         // Mocking ResetPasswordHelper's validateTokenAndFetchUser
         $this->resetPasswordHelper->method('validateTokenAndFetchUser')
-        ->willThrowException($this->createMock(ResetPasswordExceptionInterface::class));
+            ->willThrowException($this->createMock(ResetPasswordExceptionInterface::class));
 
         // We assume that the token session storage was already done
         $token = null;
 
-        $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+        $response = $this->controller->reset($this->request, $this->passwordHasher, $this->mockTranslator, $token);
 
         // Assertions
         $this->assertInstanceOf(RedirectResponse::class, $response);
@@ -265,80 +206,20 @@ class ResetPasswordControllerTest extends TestCase
     public function testErrorGenerateResetToken()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforregularreset');
-
-
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
-
-        // Setting up Password Hasher
-        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
-        $passwordHasher->method('hashPassword')
-            ->willReturn('hashed_password');
-
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
-
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
-            'router' => $router,
-        ]));
-
-        // Mock user entity
-        $user = $this->createMock(User::class);
-        $user->method('getEmail')->willReturn('user@example.com');
-
-        // Mocking entity repository to return mocked user
-        $userRepository = $this->createMock(ObjectRepository::class);
-        $userRepository->method('findOneBy')->willReturn($user);
-
-        // Mock TranslatorInterface
-        $mockTranslator = $this->createMock(TranslatorInterface::class);
-        $mockTranslator->method('trans')
-            ->willReturn('Some translation'); // Return a dummy translation
-
-        $this->entityManager->method('getRepository')
-            ->willReturn($userRepository);
+        $this->tokensessionwrapperSetReturn('faketokenForErrorGenerateResetToken');
 
         // Mocking ResetPasswordHelper's validateTokenAndFetchUser
         $this->resetPasswordHelper->method('generateResetToken')
-        ->willThrowException($this->createMock(ResetPasswordExceptionInterface::class));
-
+            ->willThrowException($this->createMock(ResetPasswordExceptionInterface::class));
 
         $emailFormData = 'anonymous@gmail.com';
 
-        // 
-        // 
-        // $method = new ReflectionMethod(ResetPasswordController::class, 'processSendingPasswordResetEmail');
-        // $method->setAccessible(true);
-
-        // $result = $method->invokeArgs($resetPasswordController, [$emailFormData, $mailer, $mockTranslator]);
-        // 
-        // 
         // use reflection to call private method processSendingPasswordResetEmail
         $method = new ReflectionMethod(ResetPasswordController::class, 'processSendingPasswordResetEmail');
 
         $method->setAccessible(true);
 
-        $result = $method->invokeArgs($this->controller, [$emailFormData, $this->mailer, $mockTranslator]);
-
-        // $response = $this->controller->processSendingPasswordResetEmail($emailFormData, $this->mailer, $mockTranslator);
+        $result = $method->invokeArgs($this->controller, [$emailFormData, $this->mailer, $this->mockTranslator]);
 
         // Assertions
         $this->assertInstanceOf(RedirectResponse::class, $result);
@@ -349,64 +230,16 @@ class ResetPasswordControllerTest extends TestCase
     public function testRemoveTokenIfPresent()
     {
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn('faketokenforremovetokentest');
-
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
-
-        // Setting up Password Hasher
-        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
-        $passwordHasher->method('hashPassword')
-            ->willReturn('hashed_password');
-
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
-
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
-            'router' => $router,
-        ]));
-
-        // Mock user entity
-        $user = $this->createMock(User::class);
-        $user->method('getEmail')->willReturn('user@example.com');
-
-        // Mocking entity repository to return mocked user
-        $userRepository = $this->createMock(ObjectRepository::class);
-        $userRepository->method('findOneBy')->willReturn($user);
-
-        // Mock TranslatorInterface
-        $mockTranslator = $this->createMock(TranslatorInterface::class);
-        $mockTranslator->method('trans')
-            ->willReturn('Some translation'); // Return a dummy translation
-
-        $this->entityManager->method('getRepository')
-            ->willReturn($userRepository);
+        $this->tokensessionwrapperSetReturn('faketokenForRemoveTokenIfPresent');
 
         // Mocking ResetPasswordHelper's validateTokenAndFetchUser
         $this->resetPasswordHelper->method('validateTokenAndFetchUser')
-            ->willReturn($user);
+            ->willReturn($this->user);
 
         // We assume that the token session storage was already done
         $token = 'faketokentest';
 
-        $response = $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
+        $response = $this->controller->reset($this->request, $this->passwordHasher, $this->mockTranslator, $token);
 
         // Assertions
         $this->assertInstanceOf(RedirectResponse::class, $response);
@@ -416,69 +249,20 @@ class ResetPasswordControllerTest extends TestCase
 
     public function testErrorNullTokenFromSessionWrapper()
     {
-        // Setting up request
-        $request = $this->createMock(Request::class);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getCurrentRequest')->willReturn($request);
-
-        // Setting up Password Hasher
-        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
-        $passwordHasher->method('hashPassword')
-            ->willReturn('hashed_password');
-
-        // Simulate the form submission
-        $form = $this->createMock(Form::class);
-        $form->method('isSubmitted')->willReturn(true);
-        $form->method('isValid')->willReturn(true);
-        $form->method('handleRequest')->willReturnSelf();
-        $form->method('get')->willReturn($form);
-        $form->method('getData')->willReturn('plain_password');
-
-        // Mock FormFactory
-        $formFactory = $this->createMock(FormFactoryInterface::class);
-        $formFactory->method('create')->willReturn($form);
-
-        $router = $this->createMock(RouterInterface::class);
-        $router->method('generate')->willReturn('some_fake_url');
-
-        $this->controller->setContainer($this->getContainer([
-            'form.factory' => $formFactory,
-            'request_stack' => $requestStack,
-            'router' => $router,
-        ]));
-
-        // Mock user entity
-        $user = $this->createMock(User::class);
-        $user->method('getEmail')->willReturn('user@example.com');
-
-        // Mocking entity repository to return mocked user
-        $userRepository = $this->createMock(ObjectRepository::class);
-        $userRepository->method('findOneBy')->willReturn($user);
-
-        // Mock TranslatorInterface
-        $mockTranslator = $this->createMock(TranslatorInterface::class);
-        $mockTranslator->method('trans')
-            ->willReturn('Some translation'); // Return a dummy translation
-
-        $this->entityManager->method('getRepository')
-            ->willReturn($userRepository);
-
         // Mocking ResetPasswordHelper's validateTokenAndFetchUser
         $this->resetPasswordHelper->method('validateTokenAndFetchUser')
-            ->willReturn($user);
+            ->willReturn($this->user);
 
         // We assume that the token session storage was already done
         $token = null;
 
-        $this->controller->method('getTokenFromSessionWrapper')->willReturn(null);
+        $this->tokensessionwrapperSetReturn(null);
 
 
         $this->expectException(NotFoundHttpException::class);
         $this->expectExceptionMessage('No reset password token found in the URL or in the session.');
-        
-        $this->controller->reset($request, $passwordHasher, $mockTranslator, $token);
 
+        $this->controller->reset($this->request, $this->passwordHasher, $this->mockTranslator, $token);
     }
 
     private function getContainer($services): ContainerInterface

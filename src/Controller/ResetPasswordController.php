@@ -20,13 +20,9 @@ use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
-abstract class BaseController extends AbstractController
-{
-    use ResetPasswordControllerTrait;
-}
 
 #[Route('/reset-password')]
-class ResetPasswordController extends BaseController
+class ResetPasswordController extends AbstractController
 {
     use ResetPasswordControllerTrait;
 
