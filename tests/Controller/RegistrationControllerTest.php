@@ -98,7 +98,6 @@ class RegistrationControllerTest extends WebTestCase
             $this->client->followRedirect();
             $this->assertResponseIsSuccessful();
         } else {
-            echo 'fail';
             // Form submission might have failed, check response.
             $statusCode = $this->client->getResponse()->getStatusCode();
             $content = $this->client->getResponse()->getContent();
