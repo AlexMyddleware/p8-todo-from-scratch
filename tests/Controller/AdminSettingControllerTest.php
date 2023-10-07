@@ -28,24 +28,6 @@ class AdminSettingControllerTest extends WebTestCase
     {
         parent::setUp();
 
-        // Create a new Process instance
-        $process = new Process([
-            'php',
-            'bin/console',
-            'doctrine:fixtures:load',
-            '--no-interaction',
-            '--env=test'
-        ]);
-
-        // Execute the process and block until it finishes
-        $process->run();
-
-        // You can also check if the process was successful
-        if (!$process->isSuccessful()) {
-            // Handle error
-            throw new RuntimeException($process->getErrorOutput());
-        }
-        
         // sets orginal roles as simple user
         $this->originalRoles = ['ROLE_USER'];
         
@@ -482,7 +464,28 @@ class AdminSettingControllerTest extends WebTestCase
         // assert that the user is deleted
         $this->assertNull($this->userRepository->findOneBy(['email' => 'adminuserroleremoved@gmail.com']));
 
-        
+        $this->reloadFixtures();
+    }
+
+    private function reloadFixtures()
+    {
+        // Create a new Process instance
+        $process = new Process([
+            'php',
+            'bin/console',
+            'doctrine:fixtures:load',
+            '--no-interaction',
+            '--env=test'
+        ]);
+
+        // Execute the process and block until it finishes
+        $process->run();
+
+        // You can also check if the process was successful
+        if (!$process->isSuccessful()) {
+            // Handle error
+            throw new RuntimeException($process->getErrorOutput());
+        }
     }
 
     public function testToggleUserRole(): void
