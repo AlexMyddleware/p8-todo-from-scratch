@@ -63,9 +63,9 @@ class Task
         return $this->title;
     }
 
-    public function setTitle(string $title): void
+    public function setTitle(?string $title): void
     {
-        $this->title = $title;
+        $this->title = $title ?? '';
     }
 
     public function getContent(): string
@@ -73,9 +73,9 @@ class Task
         return $this->content;
     }
 
-    public function setContent(string $content): void
+    public function setContent(?string $content): void
     {
-        $this->content = $content;
+        $this->content = $content ?? '';
     }
 
     public function isDone(): bool
