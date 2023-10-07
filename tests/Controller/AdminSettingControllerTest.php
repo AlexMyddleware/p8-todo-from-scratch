@@ -4,10 +4,12 @@ namespace App\Tests\Repository;
 
 use App\Entity\Task;
 use App\Entity\User;
+use RuntimeException;
 use App\Controller\TaskController;
 use App\Repository\TaskRepository;
-use App\Repository\UserRepository;
 // use task controller
+use App\Repository\UserRepository;
+use Symfony\Component\Process\Process;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -26,6 +28,23 @@ class AdminSettingControllerTest extends WebTestCase
     {
         parent::setUp();
 
+        // Create a new Process instance
+        $process = new Process([
+            'php',
+            'bin/console',
+            'doctrine:fixtures:load',
+            '--no-interaction',
+            '--env=test'
+        ]);
+
+        // Execute the process and block until it finishes
+        $process->run();
+
+        // You can also check if the process was successful
+        if (!$process->isSuccessful()) {
+            // Handle error
+            throw new RuntimeException($process->getErrorOutput());
+        }
         
         // sets orginal roles as simple user
         $this->originalRoles = ['ROLE_USER'];
