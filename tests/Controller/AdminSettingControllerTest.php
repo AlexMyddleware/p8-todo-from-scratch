@@ -409,6 +409,63 @@ class AdminSettingControllerTest extends WebTestCase
 
     }
 
+    public function testUserIsDeleted(): void
+    {
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
+            '_username' => 'adminuser@gmail.com',
+            '_password' => 'passwordadmin',
+        ]);
+
+        $this->assertForm();
+
+        // test that the site contains the logout button
+
+        $this->assertSelectorExists('a[href="/logout"]');
+
+        // asserts that the user role is admin
+
+        $this->assertContains('ROLE_ADMIN', $this->client->getContainer()->get('security.token_storage')->getToken()->getUser()->getRoles());
+
+        // assert that the user is an admin
+
+        $this->assertSelectorExists('a[href="/admin"]');
+
+        // get the user with the email anonymous@gmail using the entity
+
+        $user = $this->userRepository->findOneBy(['email' => 'adminuserroleremoved@gmail.com']);
+
+        // get the id of the user
+
+        $id = $user->getId();
+
+        // try to access the page of a user
+
+        $this->client->request('GET', '/admin/' . $id);
+
+        $this->assertResponseIsSuccessful();
+
+        // refresh
+        $this->entityManager->refresh($user);
+
+        $name = $user->getFullname();
+
+        // asserts that in the page there is a h1 with the class page-header and the name of the user 
+        $this->assertSelectorTextContains('h1.page-header', $name);
+
+        // click on the button to delete the user
+        $this->client->clickLink('Delete');
+
+        // follow the redirect
+        $this->client->followRedirect();
+
+        $this->assertSelectorTextContains('div.alert', 'Utilisateur supprimé');
+
+        // assert that the user is deleted
+        $this->assertNull($this->userRepository->findOneBy(['email' => 'adminuserroleremoved@gmail.com']));
+
+        
+    }
+
     public function testToggleUserRole(): void
     {
 

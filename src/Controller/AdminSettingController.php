@@ -91,4 +91,33 @@ class AdminSettingController extends AbstractController
         // redirect to the admin panel
         return $this->redirectToRoute('user_show', ['id' => $id]);  
     }
+
+    // function to delete a user
+    #[Route('/admin/{id}/delete', name: 'user_delete', methods: ['GET', 'POST'])]
+    public function delete(int $id): Response
+    {
+
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            // add flash message
+            $this->addFlash('danger', 'Vous devez être connecté en tant qu\'administrateur pour accéder à cette page');
+            return $this->redirectToRoute('app_home');
+        }
+
+        $user = $this->userRepository->getUserById($id);
+
+        // if the user is not found
+        if (!$user) {
+            // add flash message
+            $this->addFlash('danger', 'Utilisateur non trouvé');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        // delete the user using the deleteUser function from the user repository
+        $this->userRepository->remove($user, true);
+        // add flash message
+        $this->addFlash('success', 'Utilisateur supprimé');
+        // redirect to the admin panel
+        return $this->redirectToRoute('admin_users');
+    }
+    
 }
