@@ -106,7 +106,7 @@ class RegistrationControllerTest extends WebTestCase
         $form = $crawler->selectButton('Ajouter')->form([
             'registration_form[fullname]' => 'test',
             'registration_form[photo]' => 'test',
-            'registration_form[email]' => 'mielpopsadmin@gmail.com',
+            'registration_form[email]' => 'mielpopsnonadmin@gmail.com',
             'registration_form[agreeTerms]' => '1',
             'registration_form[plainPassword]' => 'Password1@',
         ]);
@@ -130,7 +130,7 @@ class RegistrationControllerTest extends WebTestCase
         // get the created user
         $user = $this->entityManager
             ->getRepository(User::class)
-            ->findOneBy(['email' => 'mielpopsadmin@gmail.com']);
+            ->findOneBy(['email' => 'mielpopsnonadmin@gmail.com']);
         
         // assert that the user is not verified
         $this->assertFalse($user->isVerified());
@@ -185,7 +185,7 @@ class RegistrationControllerTest extends WebTestCase
         $form = $registerCrawler->selectButton('Ajouter')->form([
             'registration_form[fullname]' => 'test',
             'registration_form[photo]' => 'test',
-            'registration_form[email]' => 'dudu@gmail.com',
+            'registration_form[email]' => 'smacksadmin@gmail.com',
             'registration_form[agreeTerms]' => '1',
             'registration_form[plainPassword]' => 'Password1@',
             'registration_form[isAdmin]' => '1',
@@ -206,6 +206,17 @@ class RegistrationControllerTest extends WebTestCase
                 $this->fail("Form submission failed with status code $statusCode and content: $content");
             }
         }
+
+        // get the created user
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'smacksadmin@gmail.com']);
+        
+        // assert that the user is not verified
+        $this->assertFalse($user->isVerified());
+        // assert that the user is not admin
+        $this->assertContains('ROLE_USER', $user->getRoles());
+        $this->assertContains('ROLE_ADMIN', $user->getRoles());
     }
 
     // function to test the verifyUserEmail function in the registration controller
