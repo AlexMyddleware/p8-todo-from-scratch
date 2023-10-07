@@ -359,6 +359,56 @@ class AdminSettingControllerTest extends WebTestCase
         $this->assertSelectorTextNotContains('li', 'ROLE_ADMIN');
     }
 
+    // function to test that in the edit page of a user, there is a button with the id user_delete present
+    public function testDeleteUserButtonIsPresent(): void
+    {
+
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
+            '_username' => 'adminuser@gmail.com',
+            '_password' => 'passwordadmin',
+        ]);
+
+        $this->assertForm();
+
+        // test that the site contains the logout button
+
+        $this->assertSelectorExists('a[href="/logout"]');
+
+        // asserts that the user role is admin
+
+        $this->assertContains('ROLE_ADMIN', $this->client->getContainer()->get('security.token_storage')->getToken()->getUser()->getRoles());
+
+        // assert that the user is an admin
+
+        $this->assertSelectorExists('a[href="/admin"]');
+
+        // get the user with the email anonymous@gmail using the entity
+
+        $user = $this->userRepository->findOneBy(['email' => 'adminuserroleremoved@gmail.com']);
+
+        // get the id of the user
+
+        $id = $user->getId();
+
+        // try to access the page of a user
+
+        $this->client->request('GET', '/admin/' . $id);
+
+        $this->assertResponseIsSuccessful();
+
+        // refresh
+        $this->entityManager->refresh($user);
+
+        $name = $user->getFullname();
+
+        // asserts that in the page there is a h1 with the class page-header and the name of the user 
+        $this->assertSelectorTextContains('h1.page-header', $name);
+
+        // assert that the page contains an element with the id user_delete
+        $this->assertSelectorExists('#user_delete');
+
+    }
+
     public function testToggleUserRole(): void
     {
 
