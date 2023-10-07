@@ -201,6 +201,8 @@ class TaskControllerTest extends WebTestCase
         $form['task[content]']->setValue('');
         $this->client->submit($form);
 
+        // this creates an error
+
         // Assert: Form is displayed with errors: you can't submit an empty title and content in the browser.
         $this->assertEquals(1, $crawler->filter('input[required]#task_title')->count());
         $this->assertEquals(1, $crawler->filter('textarea[required]#task_content')->count());
