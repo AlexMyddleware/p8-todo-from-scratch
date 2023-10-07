@@ -106,7 +106,7 @@ class RegistrationControllerTest extends WebTestCase
         $form = $crawler->selectButton('Ajouter')->form([
             'registration_form[fullname]' => 'test',
             'registration_form[photo]' => 'test',
-            'registration_form[email]' => 'dudu@gmail.com',
+            'registration_form[email]' => 'mielpopsadmin@gmail.com',
             'registration_form[agreeTerms]' => '1',
             'registration_form[plainPassword]' => 'Password1@',
         ]);
@@ -130,7 +130,7 @@ class RegistrationControllerTest extends WebTestCase
         // get the created user
         $user = $this->entityManager
             ->getRepository(User::class)
-            ->findOneBy(['email' => 'dudu@gmail.com']);
+            ->findOneBy(['email' => 'mielpopsadmin@gmail.com']);
         
         // assert that the user is not verified
         $this->assertFalse($user->isVerified());
