@@ -75,8 +75,8 @@ class RegistrationControllerTest extends WebTestCase
         $this->crawler = $this->client->request('GET', '/login');
 
         $this->form = $this->crawler->selectButton('Se connecter')->form([
-            '_username' => 'register@gmail.com',
-            '_password' => 'passwordregister',
+            '_username' => 'adminuser@gmail.com',
+            '_password' => 'passwordadmin',
         ]);
         
         $this->assertForm();
@@ -109,7 +109,6 @@ class RegistrationControllerTest extends WebTestCase
             'registration_form[email]' => 'dudu@gmail.com',
             'registration_form[agreeTerms]' => '1',
             'registration_form[plainPassword]' => 'Password1@',
-            'registration_form[isAdmin]' => '0',
         ]);
 
         $this->client->submit($form);
@@ -127,6 +126,17 @@ class RegistrationControllerTest extends WebTestCase
                 $this->fail("Form submission failed with status code $statusCode and content: $content");
             }
         }
+
+        // get the created user
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'dudu@gmail.com']);
+        
+        // assert that the user is not verified
+        $this->assertFalse($user->isVerified());
+        // assert that the user is not admin
+        $this->assertContains('ROLE_USER', $user->getRoles());
+        $this->assertNotContains('ROLE_ADMIN', $user->getRoles());
     }
 
     public function assertForm()
