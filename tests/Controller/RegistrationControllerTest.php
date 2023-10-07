@@ -27,6 +27,8 @@ class RegistrationControllerTest extends WebTestCase
 
     private VerifyEmailHelperInterface $verifyEmailHelper;
     private MailerInterface $mailer;
+    private $form;
+    private $crawler;
 
     protected function setUp(): void
     {
@@ -67,8 +69,25 @@ class RegistrationControllerTest extends WebTestCase
     }
 
 
-    public function testResponseRegiterPage(): void
+    public function testResponseRegisterPage(): void
     {
+
+        $this->crawler = $this->client->request('GET', '/login');
+
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
+            '_username' => 'register@gmail.com',
+            '_password' => 'passwordregister',
+        ]);
+        
+        $this->assertForm();
+        
+        // test that the site contains the logout button
+
+        $this->assertSelectorExists('a[href="/logout"]');
+        
+        // asserts that the user role is admin
+        
+        $this->assertContains('ROLE_USER', $this->client->getContainer()->get('security.token_storage')->getToken()->getUser()->getRoles());
 
         $crawler = $this->client->request('GET', '/register');
 
@@ -90,6 +109,76 @@ class RegistrationControllerTest extends WebTestCase
             'registration_form[email]' => 'dudu@gmail.com',
             'registration_form[agreeTerms]' => '1',
             'registration_form[plainPassword]' => 'Password1@',
+            'registration_form[isAdmin]' => '0',
+        ]);
+
+        $this->client->submit($form);
+
+        if ($this->client->getResponse()->isRedirection()) {
+            $this->client->followRedirect();
+            $this->assertResponseIsSuccessful();
+        } else {
+            // Form submission might have failed, check response.
+            $statusCode = $this->client->getResponse()->getStatusCode();
+            $content = $this->client->getResponse()->getContent();
+
+            // If status code is not 200 or response content contains error, fail the test
+            if ($statusCode != 200 || strpos($content, 'error') !== false) {
+                $this->fail("Form submission failed with status code $statusCode and content: $content");
+            }
+        }
+    }
+
+    public function assertForm()
+    {
+        $this->client->submit($this->form);
+        $this->assertTrue($this->client->getResponse()->isRedirect());
+        $this->client->followRedirect();
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testCreateAdminUser(): void
+    {
+        
+        $this->crawler = $this->client->request('GET', '/login');
+
+        $this->form = $this->crawler->selectButton('Se connecter')->form([
+            '_username' => 'adminuser@gmail.com',
+            '_password' => 'passwordadmin',
+        ]);
+        
+        $this->assertForm();
+        
+        // test that the site contains the logout button
+
+        $this->assertSelectorExists('a[href="/logout"]');
+        
+        // asserts that the user role is admin
+        
+        $this->assertContains('ROLE_ADMIN', $this->client->getContainer()->get('security.token_storage')->getToken()->getUser()->getRoles());
+        
+        $registerCrawler = $this->client->request('GET', '/register');
+        $this->assertResponseIsSuccessful();
+
+        $this->assertSelectorTextContains('h1', 'Créer un utilisateur');
+        $this->assertSelectorExists('form[name="registration_form"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[fullname]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[photo]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[email]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[agreeTerms]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[plainPassword]"]');
+        // asserts that the form contains the admin checkbox
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[isAdmin]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[_token]"]');
+        $this->assertSelectorExists('form[name="registration_form"] button[type="submit"]');
+
+        $form = $registerCrawler->selectButton('Ajouter')->form([
+            'registration_form[fullname]' => 'test',
+            'registration_form[photo]' => 'test',
+            'registration_form[email]' => 'dudu@gmail.com',
+            'registration_form[agreeTerms]' => '1',
+            'registration_form[plainPassword]' => 'Password1@',
+            'registration_form[isAdmin]' => '1',
         ]);
 
         $this->client->submit($form);

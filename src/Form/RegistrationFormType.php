@@ -13,9 +13,18 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class RegistrationFormType extends AbstractType
 {
+
+    private $security;
+
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -61,6 +70,13 @@ class RegistrationFormType extends AbstractType
                 'label' => 'registration_form.password',
             ])
         ;
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            $builder->add('isAdmin', CheckboxType::class, [
+                'mapped' => false,
+                'label' => 'Set as Admin',
+                'required' => false,
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
