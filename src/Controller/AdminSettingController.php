@@ -5,8 +5,8 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-// use the user repository
+
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use App\Repository\UserRepository;
 
 class AdminSettingController extends AbstractController
@@ -70,13 +70,13 @@ class AdminSettingController extends AbstractController
 
         $user = $this->userRepository->getUserById($id);
 
-         // if the user is not found
-         if (!$user) {
+        // if the user is not found
+        if (!$user) {
             // add flash message
             $this->addFlash('danger', 'Utilisateur non trouvé');
             return $this->redirectToRoute('admin_users');
         }
-        
+
         // get the user using the getUserById function from the user repository
         $roles = $user->getRoles();
         // if the user is an admin, remove the admin role
@@ -89,6 +89,28 @@ class AdminSettingController extends AbstractController
         // save the user
         $this->userRepository->save($user, true);
         // redirect to the admin panel
-        return $this->redirectToRoute('user_show', ['id' => $id]);  
+        return $this->redirectToRoute('user_show', ['id' => $id]);
+    }
+
+    // function to delete a user
+    #[Route('/admin/{id}/delete', name: 'user_delete', methods: ['GET', 'POST'])]
+    #[Security("is_granted('ROLE_ADMIN')", message: "Vous devez être connecté en tant qu'administrateur pour accéder à cette page")]
+    public function delete(int $id): Response
+    {
+        $user = $this->userRepository->getUserById($id);
+
+        // if the user is not found
+        if (!$user) {
+            // add flash message
+            $this->addFlash('danger', 'Utilisateur non trouvé');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        // delete the user using the deleteUser function from the user repository
+        $this->userRepository->remove($user, true);
+        // add flash message
+        $this->addFlash('success', 'Utilisateur supprimé');
+        // redirect to the admin panel
+        return $this->redirectToRoute('admin_users');
     }
 }

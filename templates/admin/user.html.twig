@@ -36,6 +36,8 @@
         <div class="col-md-8">
             <a class="btn btn-default" href="{{ path('admin_users') }}">Back to the list</a>
             <a class="btn btn-default" href="{{ path('user_edit', { 'id': user.id }) }}">Switch Roles</a>
+            {# button with the id user_delete #}
+            <a class="btn btn-danger" href="{{ path('user_delete', { 'id': user.id }) }}" id="user_delete">Delete</a>
         </div>
     </div>
 {% endblock %}
