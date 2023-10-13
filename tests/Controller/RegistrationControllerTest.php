@@ -218,6 +218,58 @@ class RegistrationControllerTest extends WebTestCase
         $this->assertContains('ROLE_USER', $user->getRoles());
         $this->assertContains('ROLE_ADMIN', $user->getRoles());
     }
+    public function testCreateNormalnUser(): void
+    {
+        
+        $registerCrawler = $this->client->request('GET', '/register');
+        $this->assertResponseIsSuccessful();
+
+        $this->assertSelectorTextContains('h1', 'Créer un utilisateur');
+        $this->assertSelectorExists('form[name="registration_form"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[fullname]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[photo]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[email]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[agreeTerms]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[plainPassword]"]');
+        // asserts that the form contains the admin checkbox
+        $this->assertSelectorNotExists('form[name="registration_form"] input[name="registration_form[isAdmin]"]');
+        $this->assertSelectorExists('form[name="registration_form"] input[name="registration_form[_token]"]');
+        $this->assertSelectorExists('form[name="registration_form"] button[type="submit"]');
+
+        $form = $registerCrawler->selectButton('Ajouter')->form([
+            'registration_form[fullname]' => 'test',
+            'registration_form[photo]' => 'test',
+            'registration_form[email]' => 'notloggedin@gmail.com',
+            'registration_form[agreeTerms]' => '1',
+            'registration_form[plainPassword]' => 'Password1@',
+        ]);
+
+        $this->client->submit($form);
+
+        if ($this->client->getResponse()->isRedirection()) {
+            $this->client->followRedirect();
+            $this->assertResponseIsSuccessful();
+        } else {
+            // Form submission might have failed, check response.
+            $statusCode = $this->client->getResponse()->getStatusCode();
+            $content = $this->client->getResponse()->getContent();
+
+            // If status code is not 200 or response content contains error, fail the test
+            if ($statusCode != 200 || strpos($content, 'error') !== false) {
+                $this->fail("Form submission failed with status code $statusCode and content: $content");
+            }
+        }
+
+        // get the created user
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'notloggedin@gmail.com']);
+        
+        // assert that the user is not verified
+        $this->assertFalse($user->isVerified());
+        // assert that the user is not admin
+        $this->assertContains('ROLE_USER', $user->getRoles());
+    }
 
     // function to test the verifyUserEmail function in the registration controller
     public function testVerifyUserEmail(): void
