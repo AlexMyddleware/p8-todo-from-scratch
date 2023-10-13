@@ -53,12 +53,15 @@ class RegistrationController extends AbstractController
                 )
             );
 
-            $user->setRoles(['ROLE_USER']);
-
-            // if form get isAdmin get data is set to true, then set roles to ["ROLE_ADMIN", "ROLE_USER"]
-            if ($form->get('isAdmin')->getData() === true) {
-                $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+            if  ($form->has('isAdmin')) {
+                if ($form->get('isAdmin')->getData() === true
+                ) {
+                    $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+                }
+            } else {
+                $user->setRoles(['ROLE_USER']);
             }
+
             $entityManager->persist($user);
             $entityManager->flush();
 
