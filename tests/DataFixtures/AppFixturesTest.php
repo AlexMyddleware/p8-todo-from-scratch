@@ -45,24 +45,26 @@ class AppFixturesTest extends TestCase
     public function testLoad(): void
     {
         // Expect the EntityManagerInterface's persist method to be called four times
-        $this->entityManagerMock->expects($this->exactly(5))
+        $this->entityManagerMock->expects($this->exactly(8))
             ->method('persist');
 
         // Expect the EntityManagerInterface's flush method to be called three times
-        $this->entityManagerMock->expects($this->exactly(1))
+        $this->entityManagerMock->expects($this->exactly(2))
             ->method('flush');
 
             $this->userPasswordHasherMock
-            ->expects($this->exactly(4)) // Expect 4 calls to hashPassword method
+            ->expects($this->exactly(5)) // Expect 5 calls to hashPassword method
             ->method('hashPassword')
             ->withConsecutive(
                 [$this->isInstanceOf(User::class), 'password'], // First call with these parameters
                 [$this->isInstanceOf(User::class), 'passwordadmin'], // Second call with these parameters
                 [$this->isInstanceOf(User::class), 'passwordadminremoval'], // third call with these parameters
-                [$this->isInstanceOf(User::class), 'passwordregister'] // third call with these parameters
+                [$this->isInstanceOf(User::class), 'passwordregister'], // third call with these parameters
+                [$this->isInstanceOf(User::class), 'passwordnormal'] // third call with these parameters
+                
 
             )
-            ->willReturnOnConsecutiveCalls('hashed_password', 'hashed_password_admin', 'hashed_password_admin_removal', 'hashed_password_register');
+            ->willReturnOnConsecutiveCalls('hashed_password', 'hashed_password_admin', 'hashed_password_admin_removal', 'hashed_password_register', 'hashed_password_normal');
 
         $this->appFixtures->load($this->entityManagerMock);
     }
