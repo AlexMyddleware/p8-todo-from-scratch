@@ -66,6 +66,37 @@ class TaskController extends AbstractController
     public function task_delete(int $id): Response
     {
         $task = $this->taskRepository->find($id);
+
+        // get the task author
+        $author = $task->getCreatedBy();
+
+        // get the current logged in user
+        $user = $this->getUser();
+
+        
+        // variable to say if the current user is an admin
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+
+        if ($author === null) {
+            // add an error flash message
+            $this->addFlash('error', 'You cannot delete a task that has no author');
+            return $this->redirectToRoute('task_list');
+        }
+        
+        // if the task author has an email anonymous@gmail.com and the $isAdmin is false, then you can't delete the task
+        if ($author->getEmail() === 'anonymous@gmail.com' && !$isAdmin) {
+            // add an error flash message
+            $this->addFlash('error', 'You cannot delete an anonymous task because you are not an admin');
+            return $this->redirectToRoute('task_list');
+        }
+
+        // if the user is not the author, we get an error. However, if the user is an admin and the author is anonymous, then the admin can delete the task
+        if ($author !== $user && $author->getEmail() !== 'anonymous@gmail.com') {
+            // add an error flash message
+            $this->addFlash('error', 'You cannot delete a task that you did not create');
+            return $this->redirectToRoute('task_list');
+        }
+
         $this->taskRepository->remove($task, true);
         return $this->redirectToRoute('task_list');
     }

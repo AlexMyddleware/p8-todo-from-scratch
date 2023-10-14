@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'anonymous-tasks',
-    description: 'Add a short description for your command',
+    description: 'This is a command to update tasks without authors, and set the anonymous user as the author. His email is anonymous@gmail.com',
 )]
 class AnonymousTasksCommand extends Command
 {

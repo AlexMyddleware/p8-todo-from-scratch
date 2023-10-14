@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Tests\Repository;
 
@@ -35,7 +35,7 @@ class TaskControllerTest extends WebTestCase
             ->getRepository(Task::class);
 
         $this->entityManager->getConnection()->executeStatement('DELETE FROM task');
-        // reset the auto-increment
+        // // reset the auto-increment
         $this->entityManager->getConnection()->executeStatement('ALTER TABLE task AUTO_INCREMENT = 1');
 
         // create a task
@@ -59,15 +59,6 @@ class TaskControllerTest extends WebTestCase
         $this->taskRepository->save($task, true);
 
         $this->assertSame(true, $task->getIsDone());
-    }
-
-    // function to test the task_delete function
-    public function testTaskDelete(): void
-    {
-        $task = $this->taskRepository->find(1);
-        $this->taskRepository->remove($task, true);
-
-        $this->assertCount(0, $this->taskRepository->findAll());
     }
 
     // function to test the task_create function
@@ -111,7 +102,7 @@ class TaskControllerTest extends WebTestCase
         ]);
 
         $this->client->submit($form);
-        
+
         $this->assertTrue($this->client->getResponse()->isRedirect());
         $this->client->followRedirect();
         $this->assertResponseIsSuccessful();
@@ -125,7 +116,7 @@ class TaskControllerTest extends WebTestCase
 
         // Act: Request the create page
         $crawler = $this->client->request('GET', '/task/create');
-        
+
         // Act: Submit the form with new data
         $form = $crawler->selectButton('Ajouter')->form();
         $form['task[title]']->setValue($newTitle);
@@ -267,7 +258,7 @@ class TaskControllerTest extends WebTestCase
     }
 
     // Function to test the delete function for a task with not done
-    public function testTaskDeleteSuccess(): void
+    public function testTaskDeleteFailed(): void
     {
         // Arrange: Prepare the task to delete
         $taskId = 1;
@@ -281,7 +272,154 @@ class TaskControllerTest extends WebTestCase
 
         // Assert: Task has been deleted in the database
         $deletedTask = $this->taskRepository->find($taskId);
+        $this->assertNotNull($deletedTask);
+    }
+
+    public function testTaskDeleteAnonymousTaskFailureNotAdmin()
+    {
+        // Arrange: Prepare the task to delete
+        // create one task with the author being anonymous
+        $taskAnonymous = new Task(
+            'Task anonymous',
+            'content2, task can be deleted by anonymous'
+        );
+
+        // get the user anonymous
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'anonymous@gmail.com']);
+
+        // set the user anonymous as the author of the task
+        $taskAnonymous->setCreatedBy($user);
+
+        // persist the task
+        $this->entityManager->persist($taskAnonymous);
+
+        // flush
+        $this->entityManager->flush();
+        
+        // log in as the author of the task
+        $crawler = $this->client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'normaluser@gmailcom',
+            '_password' => 'passwordnormal',
+        ]);
+
+        $this->client->submit($form);
+
+        // get the task id
+        $taskId = $taskAnonymous->getId();
+
+        // Act: Request the delete page
+        $this->client->request('GET', "/task/{$taskId}/delete");
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been deleted in the database
+        $deletedTask = $this->taskRepository->find($taskId);
+        $this->assertNotNull($deletedTask);
+    }
+
+    public function testTaskDeleteFailureNotTheAuthor()
+    {
+        // Arrange: Prepare the task to delete
+        // create one task with the author being anonymous
+        $taskNormal = new Task(
+            'Task normal can not delete',
+            'content2, task can be deleted by normal but not by anonymous'
+        );
+
+        // get the user anonymous
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'normaluser@gmailcom']);
+
+        // set the user anonymous as the author of the task
+        $taskNormal->setCreatedBy($user);
+
+        // persist the task
+        $this->entityManager->persist($taskNormal);
+
+        // flush
+        $this->entityManager->flush();
+        
+        // log in as the author of the task
+        $crawler = $this->client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'anonymous@gmail.com',
+            '_password' => 'password',
+        ]);
+
+        $this->client->submit($form);
+
+        // get the task id
+        $taskId = $taskNormal->getId();
+
+        // Act: Request the delete page
+        $this->client->request('GET', "/task/{$taskId}/delete");
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been deleted in the database
+        $deletedTask = $this->taskRepository->find($taskId);
+        $this->assertNotNull($deletedTask);
+    }
+
+    // function to test if the delete function for a task with done works because the user is the author of the task
+    public function testTaskDeleteCorrectAuthor()
+    {
+        // Arrange: Prepare the task to delete
+        // create one task with the author being adminuserroleremoved@gmail.com
+        $task2 = new Task(
+            'Task normal user',
+            'content2, task can be deleted by normaluser'
+        );
+
+        // get the user normaluser@gmailcom
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'normaluser@gmailcom']);
+
+        // set the user as the author of the task
+        $task2->setCreatedBy($user);
+
+        // persist the task
+        $this->entityManager->persist($task2);
+
+        // flush
+        $this->entityManager->flush();
+        
+
+        $userId = $user->getId();
+
+        // get the task id
+        $taskId = $task2->getId();
+
+        // log in as the author of the task
+        $crawler = $this->client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'normaluser@gmailcom',
+            '_password' => 'passwordnormal',
+        ]);
+
+        $this->client->submit($form);
+
+        // Act: Request the delete page
+        $this->client->request('GET', "/task/{$taskId}/delete");
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been deleted in the database
+        $deletedTask = $this->taskRepository->find($taskId);
         $this->assertNull($deletedTask);
+
+        
     }
 
     // Function to tost the getAllTasks function
@@ -317,15 +455,13 @@ class TaskControllerTest extends WebTestCase
         // you can get it from the client and then make further assertions
         $response = $this->client->getResponse();
         $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response);
-
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
-        
+
 
         $this->entityManager->close();
-
     }
 }

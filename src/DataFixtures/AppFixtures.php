@@ -24,6 +24,8 @@ class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
 
+        
+
         $user = new User();
         $user->setEmail('anonymous@gmail.com');
         $user->setFullname('John Doe');
@@ -105,6 +107,32 @@ class AppFixtures extends Fixture
         // persist
         $manager->persist($normalUser);
 
+        // create a normal user with the email normaluser@gmailcom
+
+        $normalUser2 = new User();
+        
+        $normalUser2->setEmail('normaluser@gmailcom');
+
+        $normalUser2->setFullname('Normal Doe');
+
+        $normalUser2->setRoles(['ROLE_USER']);
+
+        // create an encoded password for "passwordnormal"
+        $normalUser2->setPassword(
+            $this->userPasswordHasher->hashPassword(
+                $normalUser2,
+                'passwordnormal'
+            )
+        );
+
+        // set photo
+        $normalUser2->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+
+        // set verified to true
+        $normalUser2->setIsVerified(true);
+
+        // persist
+        $manager->persist($normalUser2);
 
 
         // create one task
@@ -115,6 +143,29 @@ class AppFixtures extends Fixture
 
         $manager->persist($task);
 
+        // create one task with the author being adminuserroleremoved@gmail.com
+        $task2 = new Task(
+            'Task normal user',
+            'content2, task can be deleted by normaluser'
+        );
+
+        
+        $manager->persist($task2);
+        
+        $manager->flush();
+        $task2->setCreatedBy($normalUser2);
+
+        // create task 3 that should be deleted by adminuser
+        $task3 = new Task(
+            'Task admin user',
+            'content3, task can be deleted by adminuser'
+        );
+
+        $task3->setCreatedBy($adminUser);
+
+        $manager->persist($task3);
+
+        // flush
         $manager->flush();
     }
 }
