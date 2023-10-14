@@ -322,6 +322,53 @@ class TaskControllerTest extends WebTestCase
         $this->assertNotNull($deletedTask);
     }
 
+    public function testTaskDeleteFailureNotTheAuthor()
+    {
+        // Arrange: Prepare the task to delete
+        // create one task with the author being anonymous
+        $taskNormal = new Task(
+            'Task normal can not delete',
+            'content2, task can be deleted by normal but not by anonymous'
+        );
+
+        // get the user anonymous
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'normaluser@gmailcom']);
+
+        // set the user anonymous as the author of the task
+        $taskNormal->setCreatedBy($user);
+
+        // persist the task
+        $this->entityManager->persist($taskNormal);
+
+        // flush
+        $this->entityManager->flush();
+        
+        // log in as the author of the task
+        $crawler = $this->client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'anonymous@gmail.com',
+            '_password' => 'password',
+        ]);
+
+        $this->client->submit($form);
+
+        // get the task id
+        $taskId = $taskNormal->getId();
+
+        // Act: Request the delete page
+        $this->client->request('GET', "/task/{$taskId}/delete");
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been deleted in the database
+        $deletedTask = $this->taskRepository->find($taskId);
+        $this->assertNotNull($deletedTask);
+    }
+
     // function to test if the delete function for a task with done works because the user is the author of the task
     public function testTaskDeleteCorrectAuthor()
     {
