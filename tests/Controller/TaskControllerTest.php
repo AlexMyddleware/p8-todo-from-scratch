@@ -275,8 +275,55 @@ class TaskControllerTest extends WebTestCase
         $this->assertNotNull($deletedTask);
     }
 
+    public function testTaskDeleteAnonymousTaskFailureNotAdmin()
+    {
+        // Arrange: Prepare the task to delete
+        // create one task with the author being anonymous
+        $taskAnonymous = new Task(
+            'Task anonymous',
+            'content2, task can be deleted by anonymous'
+        );
+
+        // get the user anonymous
+        $user = $this->entityManager
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'anonymous@gmail.com']);
+
+        // set the user anonymous as the author of the task
+        $taskAnonymous->setCreatedBy($user);
+
+        // persist the task
+        $this->entityManager->persist($taskAnonymous);
+
+        // flush
+        $this->entityManager->flush();
+        
+        // log in as the author of the task
+        $crawler = $this->client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'normaluser@gmailcom',
+            '_password' => 'passwordnormal',
+        ]);
+
+        $this->client->submit($form);
+
+        // get the task id
+        $taskId = $taskAnonymous->getId();
+
+        // Act: Request the delete page
+        $this->client->request('GET', "/task/{$taskId}/delete");
+
+        // Assert: Response is a redirection to the task list
+        $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // Assert: Task has been deleted in the database
+        $deletedTask = $this->taskRepository->find($taskId);
+        $this->assertNotNull($deletedTask);
+    }
+
     // function to test if the delete function for a task with done works because the user is the author of the task
-    public function testTaskCorrectAuthor()
+    public function testTaskDeleteCorrectAuthor()
     {
         // Arrange: Prepare the task to delete
         // create one task with the author being adminuserroleremoved@gmail.com
