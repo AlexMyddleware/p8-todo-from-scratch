@@ -134,7 +134,12 @@ class ResetPasswordControllerTest extends TestCase
         // We assume that the token session storage was already done
         $token = null;
 
+        $this->user->expects($this->once())
+               ->method('setPassword')
+               ->with($this->equalTo('hashed_password'));
+
         $response = $this->controller->reset($this->request, $this->passwordHasher, $this->mockTranslator, $token);
+
 
         // Assertions
         $this->assertInstanceOf(RedirectResponse::class, $response);
