@@ -16,6 +16,9 @@
         <!-- Custom CSS -->
         <link href="{{ asset('css/shop-homepage.css') }}" rel="stylesheet">
 
+        {# user css #}
+        <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
+
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -38,6 +41,7 @@
         <!-- Page Content -->
         <div class="container">
             <div class="row user-buttons-row">
+
                 <a href="{{ path('app_register') }}" class="btn btn-primary">Créer un utilisateur</a>
 
                 {% if app.user %}
@@ -55,6 +59,23 @@
             </div>
 
             <div class="row">
+
+<div class="user-info">
+	{% if app.user %}
+		<p class="user-fullname">Hello,
+			{{ app.user.fullname }}
+			!</p>
+		<img src="{{ app.user.photo }}" alt="{{ app.user.fullname }}" class="user-photo"/>
+		{% if app.user.isVerified %}
+			<p class="verified-status">Your account is verified.</p>
+		{% else %}
+			<p class="unverified-status">Your account is not verified.</p>
+		{% endif %}
+	{% endif %}
+</div>
+
+
+
                 <div class="col-md-12">
                     {% for flash_message in app.session.flashBag.get('success') %}
                         <div class="alert alert-success" role="alert">

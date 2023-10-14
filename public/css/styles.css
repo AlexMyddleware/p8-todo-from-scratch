@@ -1,0 +1,12 @@
+/* Contents of public/css/styles.css */
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-photo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; /* optional: for rounded corners */
+    margin-right: 10px; /* optional: for some spacing between the photo and text */
+}
