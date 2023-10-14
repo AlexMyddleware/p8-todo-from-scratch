@@ -1,0 +1,1060 @@
+Escaped mutants:
+================
+
+1) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:128    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+     public function reset(Request $request, UserPasswordHasherInterface $passwordHasher, TranslatorInterface $translator, string $token = null) : Response
+     {
+         if ($token) {
+-            // We store the token in session and remove it from the URL, to avoid the URL being
+-            // loaded in a browser and potentially leaking the token to 3rd party JavaScript.
+-            /**
+-             * @codeCoverageIgnore
+-             */
+-            $this->storeTokenInSession($token);
++            
+             return $this->redirectToRoute('app_reset_password');
+         }
+         $token = $this->getTokenFromSessionWrapper();
+
+
+2) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:153    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         }
+         // The token is valid; allow the user to change their password.
+         $form = $this->createForm(ChangePasswordFormType::class);
+-        $form->handleRequest($request);
++        
+         if ($form->isSubmitted() && $form->isValid()) {
+             // A password reset token should be used only once, remove it.
+             $this->resetPasswordHelper->removeResetRequest($token);
+
+
+3) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:155    [M] LogicalAnd
+
+--- Original
++++ New
+@@ @@
+         // The token is valid; allow the user to change their password.
+         $form = $this->createForm(ChangePasswordFormType::class);
+         $form->handleRequest($request);
+-        if ($form->isSubmitted() && $form->isValid()) {
++        if ($form->isSubmitted() || $form->isValid()) {
+             // A password reset token should be used only once, remove it.
+             $this->resetPasswordHelper->removeResetRequest($token);
+             // $this->resetPasswordHelper->removeResetRequest($token);
+
+
+4) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:158    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $form = $this->createForm(ChangePasswordFormType::class);
+         $form->handleRequest($request);
+         if ($form->isSubmitted() && $form->isValid()) {
+-            // A password reset token should be used only once, remove it.
+-            $this->resetPasswordHelper->removeResetRequest($token);
++            
+             // $this->resetPasswordHelper->removeResetRequest($token);
+             // Encode(hash) the plain password, and set it.
+             $encodedPassword = $passwordHasher->hashPassword($user, $form->get('plainPassword')->getData());
+
+
+5) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:168    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+             // $this->resetPasswordHelper->removeResetRequest($token);
+             // Encode(hash) the plain password, and set it.
+             $encodedPassword = $passwordHasher->hashPassword($user, $form->get('plainPassword')->getData());
+-            $user->setPassword($encodedPassword);
++            
+             $this->entityManager->flush();
+             // The session is cleaned up after the password has been changed.
+             $this->cleanSessionAfterReset();
+
+
+6) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:169    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+             // Encode(hash) the plain password, and set it.
+             $encodedPassword = $passwordHasher->hashPassword($user, $form->get('plainPassword')->getData());
+             $user->setPassword($encodedPassword);
+-            $this->entityManager->flush();
++            
+             // The session is cleaned up after the password has been changed.
+             $this->cleanSessionAfterReset();
+             // add flash message
+
+
+7) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:172    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+             $encodedPassword = $passwordHasher->hashPassword($user, $form->get('plainPassword')->getData());
+             $user->setPassword($encodedPassword);
+             $this->entityManager->flush();
+-            // The session is cleaned up after the password has been changed.
+-            $this->cleanSessionAfterReset();
++            
+             // add flash message
+             $this->addFlash('success', 'Votre mot de passe a été modifié avec succès.');
+             return $this->redirectToRoute('app_home');
+
+
+8) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:175    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+             $this->entityManager->flush();
+             // The session is cleaned up after the password has been changed.
+             $this->cleanSessionAfterReset();
+-            // add flash message
+-            $this->addFlash('success', 'Votre mot de passe a été modifié avec succès.');
++            
+             return $this->redirectToRoute('app_home');
+         }
+         return $this->render('reset_password/reset.html.twig', ['resetForm' => $form->createView()]);
+
+
+9) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:179    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+             $this->addFlash('success', 'Votre mot de passe a été modifié avec succès.');
+             return $this->redirectToRoute('app_home');
+         }
+-        return $this->render('reset_password/reset.html.twig', ['resetForm' => $form->createView()]);
++        return $this->render('reset_password/reset.html.twig', []);
+     }
+     public function getUserfromEmail(string $email)
+     {
+
+
+10) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:180    [M] ArrayItem
+
+--- Original
++++ New
+@@ @@
+             $this->addFlash('success', 'Votre mot de passe a été modifié avec succès.');
+             return $this->redirectToRoute('app_home');
+         }
+-        return $this->render('reset_password/reset.html.twig', ['resetForm' => $form->createView()]);
++        return $this->render('reset_password/reset.html.twig', ['resetForm' > $form->createView()]);
+     }
+     public function getUserfromEmail(string $email)
+     {
+
+
+11) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:28    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+     public function load(ObjectManager $manager) : void
+     {
+         $user = new User();
+-        $user->setEmail('anonymous@gmail.com');
++        
+         $user->setFullname('John Doe');
+         $user->setRoles(['ROLE_USER']);
+         // create a best practice user password hasher
+
+
+12) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:29    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+     {
+         $user = new User();
+         $user->setEmail('anonymous@gmail.com');
+-        $user->setFullname('John Doe');
++        
+         $user->setRoles(['ROLE_USER']);
+         // create a best practice user password hasher
+         // create an encoded password for "password"
+
+
+13) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:30    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+         $user = new User();
+         $user->setEmail('anonymous@gmail.com');
+         $user->setFullname('John Doe');
+-        $user->setRoles(['ROLE_USER']);
++        $user->setRoles([]);
+         // create a best practice user password hasher
+         // create an encoded password for "password"
+         $user->setPassword($this->userPasswordHasher->hashPassword($user, 'password'));
+
+
+14) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:30    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $user = new User();
+         $user->setEmail('anonymous@gmail.com');
+         $user->setFullname('John Doe');
+-        $user->setRoles(['ROLE_USER']);
++        
+         // create a best practice user password hasher
+         // create an encoded password for "password"
+         $user->setPassword($this->userPasswordHasher->hashPassword($user, 'password'));
+
+
+15) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:43    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         // create a best practice user password hasher
+         // create an encoded password for "password"
+         $user->setPassword($this->userPasswordHasher->hashPassword($user, 'password'));
+-        $user->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
++        
+         $user->setIsVerified(true);
+         $manager->persist($user);
+         // Create an admin user
+
+
+16) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:44    [M] TrueValue
+
+--- Original
++++ New
+@@ @@
+         // create an encoded password for "password"
+         $user->setPassword($this->userPasswordHasher->hashPassword($user, 'password'));
+         $user->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+-        $user->setIsVerified(true);
++        $user->setIsVerified(false);
+         $manager->persist($user);
+         // Create an admin user
+         $adminUser = new User();
+
+
+17) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:44    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         // create an encoded password for "password"
+         $user->setPassword($this->userPasswordHasher->hashPassword($user, 'password'));
+         $user->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+-        $user->setIsVerified(true);
++        
+         $manager->persist($user);
+         // Create an admin user
+         $adminUser = new User();
+
+
+18) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:49    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $manager->persist($user);
+         // Create an admin user
+         $adminUser = new User();
+-        $adminUser->setEmail('adminuser@gmail.com');
++        
+         $adminUser->setFullname('Admin Doe');
+         $adminUser->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+         // create an encoded password for "passwordadmin"
+
+
+19) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:50    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         // Create an admin user
+         $adminUser = new User();
+         $adminUser->setEmail('adminuser@gmail.com');
+-        $adminUser->setFullname('Admin Doe');
++        
+         $adminUser->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+         // create an encoded password for "passwordadmin"
+         $adminUser->setPassword($this->userPasswordHasher->hashPassword($adminUser, 'passwordadmin'));
+
+
+20) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:51    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+         $adminUser = new User();
+         $adminUser->setEmail('adminuser@gmail.com');
+         $adminUser->setFullname('Admin Doe');
+-        $adminUser->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
++        $adminUser->setRoles(['ROLE_USER']);
+         // create an encoded password for "passwordadmin"
+         $adminUser->setPassword($this->userPasswordHasher->hashPassword($adminUser, 'passwordadmin'));
+         $adminUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+
+
+21) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:51    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $adminUser = new User();
+         $adminUser->setEmail('adminuser@gmail.com');
+         $adminUser->setFullname('Admin Doe');
+-        $adminUser->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
++        
+         // create an encoded password for "passwordadmin"
+         $adminUser->setPassword($this->userPasswordHasher->hashPassword($adminUser, 'passwordadmin'));
+         $adminUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+
+
+22) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:62    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $adminUser->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+         // create an encoded password for "passwordadmin"
+         $adminUser->setPassword($this->userPasswordHasher->hashPassword($adminUser, 'passwordadmin'));
+-        $adminUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
++        
+         $adminUser->setIsVerified(true);
+         $manager->persist($adminUser);
+         // Create an admin user whose admin role will be removed
+
+
+23) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:63    [M] TrueValue
+
+--- Original
++++ New
+@@ @@
+         // create an encoded password for "passwordadmin"
+         $adminUser->setPassword($this->userPasswordHasher->hashPassword($adminUser, 'passwordadmin'));
+         $adminUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+-        $adminUser->setIsVerified(true);
++        $adminUser->setIsVerified(false);
+         $manager->persist($adminUser);
+         // Create an admin user whose admin role will be removed
+         $adminUserRoleRemoval = new User();
+
+
+24) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:63    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         // create an encoded password for "passwordadmin"
+         $adminUser->setPassword($this->userPasswordHasher->hashPassword($adminUser, 'passwordadmin'));
+         $adminUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+-        $adminUser->setIsVerified(true);
++        
+         $manager->persist($adminUser);
+         // Create an admin user whose admin role will be removed
+         $adminUserRoleRemoval = new User();
+
+
+25) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:69    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $manager->persist($adminUser);
+         // Create an admin user whose admin role will be removed
+         $adminUserRoleRemoval = new User();
+-        $adminUserRoleRemoval->setEmail('adminuserroleremoved@gmail.com');
++        
+         $adminUserRoleRemoval->setFullname('Gandalfnotadmin Doe');
+         $adminUserRoleRemoval->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+         // create an encoded password for "passwordadmin"
+
+
+26) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:70    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         // Create an admin user whose admin role will be removed
+         $adminUserRoleRemoval = new User();
+         $adminUserRoleRemoval->setEmail('adminuserroleremoved@gmail.com');
+-        $adminUserRoleRemoval->setFullname('Gandalfnotadmin Doe');
++        
+         $adminUserRoleRemoval->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+         // create an encoded password for "passwordadmin"
+         $adminUserRoleRemoval->setPassword($this->userPasswordHasher->hashPassword($adminUserRoleRemoval, 'passwordadminremoval'));
+
+
+27) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:71    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+         $adminUserRoleRemoval = new User();
+         $adminUserRoleRemoval->setEmail('adminuserroleremoved@gmail.com');
+         $adminUserRoleRemoval->setFullname('Gandalfnotadmin Doe');
+-        $adminUserRoleRemoval->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
++        $adminUserRoleRemoval->setRoles(['ROLE_USER']);
+         // create an encoded password for "passwordadmin"
+         $adminUserRoleRemoval->setPassword($this->userPasswordHasher->hashPassword($adminUserRoleRemoval, 'passwordadminremoval'));
+         $adminUserRoleRemoval->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+
+
+28) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:71    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $adminUserRoleRemoval = new User();
+         $adminUserRoleRemoval->setEmail('adminuserroleremoved@gmail.com');
+         $adminUserRoleRemoval->setFullname('Gandalfnotadmin Doe');
+-        $adminUserRoleRemoval->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
++        
+         // create an encoded password for "passwordadmin"
+         $adminUserRoleRemoval->setPassword($this->userPasswordHasher->hashPassword($adminUserRoleRemoval, 'passwordadminremoval'));
+         $adminUserRoleRemoval->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+
+
+29) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:82    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $adminUserRoleRemoval->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+         // create an encoded password for "passwordadmin"
+         $adminUserRoleRemoval->setPassword($this->userPasswordHasher->hashPassword($adminUserRoleRemoval, 'passwordadminremoval'));
+-        $adminUserRoleRemoval->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
++        
+         $adminUserRoleRemoval->setIsVerified(true);
+         $manager->persist($adminUserRoleRemoval);
+         // create a normal user with the email register@gmail.com
+
+
+30) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:83    [M] TrueValue
+
+--- Original
++++ New
+@@ @@
+         // create an encoded password for "passwordadmin"
+         $adminUserRoleRemoval->setPassword($this->userPasswordHasher->hashPassword($adminUserRoleRemoval, 'passwordadminremoval'));
+         $adminUserRoleRemoval->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+-        $adminUserRoleRemoval->setIsVerified(true);
++        $adminUserRoleRemoval->setIsVerified(false);
+         $manager->persist($adminUserRoleRemoval);
+         // create a normal user with the email register@gmail.com
+         $normalUser = new User();
+
+
+31) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:83    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         // create an encoded password for "passwordadmin"
+         $adminUserRoleRemoval->setPassword($this->userPasswordHasher->hashPassword($adminUserRoleRemoval, 'passwordadminremoval'));
+         $adminUserRoleRemoval->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+-        $adminUserRoleRemoval->setIsVerified(true);
++        
+         $manager->persist($adminUserRoleRemoval);
+         // create a normal user with the email register@gmail.com
+         $normalUser = new User();
+
+
+32) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:88    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $manager->persist($adminUserRoleRemoval);
+         // create a normal user with the email register@gmail.com
+         $normalUser = new User();
+-        $normalUser->setEmail('register@gmail.com');
++        
+         $normalUser->setFullname('Register Doe');
+         $normalUser->setRoles(['ROLE_USER']);
+         // create an encoded password for "passwordregister"
+
+
+33) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:89    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         // create a normal user with the email register@gmail.com
+         $normalUser = new User();
+         $normalUser->setEmail('register@gmail.com');
+-        $normalUser->setFullname('Register Doe');
++        
+         $normalUser->setRoles(['ROLE_USER']);
+         // create an encoded password for "passwordregister"
+         $normalUser->setPassword($this->userPasswordHasher->hashPassword($normalUser, 'passwordregister'));
+
+
+34) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:90    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+         $normalUser = new User();
+         $normalUser->setEmail('register@gmail.com');
+         $normalUser->setFullname('Register Doe');
+-        $normalUser->setRoles(['ROLE_USER']);
++        $normalUser->setRoles([]);
+         // create an encoded password for "passwordregister"
+         $normalUser->setPassword($this->userPasswordHasher->hashPassword($normalUser, 'passwordregister'));
+         // set photo
+
+
+35) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:90    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $normalUser = new User();
+         $normalUser->setEmail('register@gmail.com');
+         $normalUser->setFullname('Register Doe');
+-        $normalUser->setRoles(['ROLE_USER']);
++        
+         // create an encoded password for "passwordregister"
+         $normalUser->setPassword($this->userPasswordHasher->hashPassword($normalUser, 'passwordregister'));
+         // set photo
+
+
+36) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:101    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $normalUser->setRoles(['ROLE_USER']);
+         // create an encoded password for "passwordregister"
+         $normalUser->setPassword($this->userPasswordHasher->hashPassword($normalUser, 'passwordregister'));
+-        // set photo
+-        $normalUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
++        
+         // set verified to false
+         $normalUser->setIsVerified(false);
+         // persist
+
+
+37) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:104    [M] FalseValue
+
+--- Original
++++ New
+@@ @@
+         // set photo
+         $normalUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+         // set verified to false
+-        $normalUser->setIsVerified(false);
++        $normalUser->setIsVerified(true);
+         // persist
+         $manager->persist($normalUser);
+         // create one task
+
+
+38) C:\laragon\www\p8-todo-from-scratch\src\DataFixtures\AppFixtures.php:104    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $normalUser->setPassword($this->userPasswordHasher->hashPassword($normalUser, 'passwordregister'));
+         // set photo
+         $normalUser->setPhoto('https://static.wikia.nocookie.net/shadowsdietwice/images/d/d1/Withered_Red_Gourd.png');
+-        // set verified to false
+-        $normalUser->setIsVerified(false);
++        
+         // persist
+         $manager->persist($normalUser);
+         // create one task
+
+
+39) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:18    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+     public function buildForm(FormBuilderInterface $builder, array $options) : void
+     {
+         $builder->add('plainPassword', RepeatedType::class, [
+-            'type' => PasswordType::class,
+             'options' => ['attr' => ['autocomplete' => 'new-password', 'class' => 'form-control m-2 p-2']],
+             'first_options' => ['constraints' => [new NotBlank(['message' => 'Please enter a password']), new Length([
+                 'min' => 6,
+
+
+40) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:26    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+         $builder->add('plainPassword', RepeatedType::class, [
+             'type' => PasswordType::class,
+             'options' => ['attr' => ['autocomplete' => 'new-password', 'class' => 'form-control m-2 p-2']],
+-            'first_options' => ['constraints' => [new NotBlank(['message' => 'Please enter a password']), new Length([
+-                'min' => 6,
+-                'minMessage' => 'Your password should be at least {{ limit }} characters',
+-                // max length allowed by Symfony for security reasons
+-                'max' => 4096,
+-            ])], 'label' => 'New password'],
++            'first_options' => ['label' => 'New password'],
+             'second_options' => ['label' => 'Repeat Password'],
+             'invalid_message' => 'The password fields must match.',
+             // Instead of being set onto the object directly,
+
+
+41) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:27    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+         $builder->add('plainPassword', RepeatedType::class, [
+             'type' => PasswordType::class,
+             'options' => ['attr' => ['autocomplete' => 'new-password', 'class' => 'form-control m-2 p-2']],
+-            'first_options' => ['constraints' => [new NotBlank(['message' => 'Please enter a password']), new Length([
++            'first_options' => ['constraints' => [new Length([
+                 'min' => 6,
+                 'minMessage' => 'Your password should be at least {{ limit }} characters',
+                 // max length allowed by Symfony for security reasons
+
+
+42) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:28    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+         $builder->add('plainPassword', RepeatedType::class, [
+             'type' => PasswordType::class,
+             'options' => ['attr' => ['autocomplete' => 'new-password', 'class' => 'form-control m-2 p-2']],
+-            'first_options' => ['constraints' => [new NotBlank(['message' => 'Please enter a password']), new Length([
++            'first_options' => ['constraints' => [new NotBlank([]), new Length([
+                 'min' => 6,
+                 'minMessage' => 'Your password should be at least {{ limit }} characters',
+                 // max length allowed by Symfony for security reasons
+
+
+43) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:31    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+             'type' => PasswordType::class,
+             'options' => ['attr' => ['autocomplete' => 'new-password', 'class' => 'form-control m-2 p-2']],
+             'first_options' => ['constraints' => [new NotBlank(['message' => 'Please enter a password']), new Length([
+-                'min' => 6,
+                 'minMessage' => 'Your password should be at least {{ limit }} characters',
+                 // max length allowed by Symfony for security reasons
+                 'max' => 4096,
+
+
+44) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:32    [M] DecrementInteger
+
+--- Original
++++ New
+@@ @@
+             'type' => PasswordType::class,
+             'options' => ['attr' => ['autocomplete' => 'new-password', 'class' => 'form-control m-2 p-2']],
+             'first_options' => ['constraints' => [new NotBlank(['message' => 'Please enter a password']), new Length([
+-                'min' => 6,
++                'min' => 5,
+                 'minMessage' => 'Your password should be at least {{ limit }} characters',
+                 // max length allowed by Symfony for security reasons
+                 'max' => 4096,
+
+
+45) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:32    [M] IncrementInteger
+
+--- Original
++++ New
+@@ @@
+             'type' => PasswordType::class,
+             'options' => ['attr' => ['autocomplete' => 'new-password', 'class' => 'form-control m-2 p-2']],
+             'first_options' => ['constraints' => [new NotBlank(['message' => 'Please enter a password']), new Length([
+-                'min' => 6,
++                'min' => 7,
+                 'minMessage' => 'Your password should be at least {{ limit }} characters',
+                 // max length allowed by Symfony for security reasons
+                 'max' => 4096,
+
+
+46) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:35    [M] DecrementInteger
+
+--- Original
++++ New
+@@ @@
+                 'min' => 6,
+                 'minMessage' => 'Your password should be at least {{ limit }} characters',
+                 // max length allowed by Symfony for security reasons
+-                'max' => 4096,
++                'max' => 4095,
+             ])], 'label' => 'New password'],
+             'second_options' => ['label' => 'Repeat Password'],
+             'invalid_message' => 'The password fields must match.',
+
+
+47) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:35    [M] IncrementInteger
+
+--- Original
++++ New
+@@ @@
+                 'min' => 6,
+                 'minMessage' => 'Your password should be at least {{ limit }} characters',
+                 // max length allowed by Symfony for security reasons
+-                'max' => 4096,
++                'max' => 4097,
+             ])], 'label' => 'New password'],
+             'second_options' => ['label' => 'Repeat Password'],
+             'invalid_message' => 'The password fields must match.',
+
+
+48) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:40    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+                 // max length allowed by Symfony for security reasons
+                 'max' => 4096,
+             ])], 'label' => 'New password'],
+-            'second_options' => ['label' => 'Repeat Password'],
++            'second_options' => [],
+             'invalid_message' => 'The password fields must match.',
+             // Instead of being set onto the object directly,
+             // this is read and encoded in the controller
+
+
+49) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:46    [M] FalseValue
+
+--- Original
++++ New
+@@ @@
+             'invalid_message' => 'The password fields must match.',
+             // Instead of being set onto the object directly,
+             // this is read and encoded in the controller
+-            'mapped' => false,
++            'mapped' => true,
+         ]);
+     }
+     public function configureOptions(OptionsResolver $resolver) : void
+
+
+50) C:\laragon\www\p8-todo-from-scratch\src\Form\ChangePasswordFormType.php:54    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+     }
+     public function configureOptions(OptionsResolver $resolver) : void
+     {
+-        $resolver->setDefaults([]);
++        
+     }
+ }
+
+
+Timed Out mutants:
+==================
+
+Skipped mutants:
+================
+
+Not Covered mutants:
+====================
+
+1) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:49    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $form = $this->createForm(RegistrationFormType::class, $user);
+         $form->handleRequest($request);
+         if ($form->isSubmitted() && $form->isValid()) {
+-            // encode the plain password
+-            $user->setPassword($userPasswordHasher->hashPassword($user, $form->get('plainPassword')->getData()));
++            
+             if ($form->has('isAdmin')) {
+                 if ($form->get('isAdmin')->getData() === true) {
+                     $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+
+
+2) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:56    [M] IfNegation
+
+--- Original
++++ New
+@@ @@
+         if ($form->isSubmitted() && $form->isValid()) {
+             // encode the plain password
+             $user->setPassword($userPasswordHasher->hashPassword($user, $form->get('plainPassword')->getData()));
+-            if ($form->has('isAdmin')) {
++            if (!$form->has('isAdmin')) {
+                 if ($form->get('isAdmin')->getData() === true) {
+                     $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+                 }
+
+
+3) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:57    [M] TrueValue
+
+--- Original
++++ New
+@@ @@
+             // encode the plain password
+             $user->setPassword($userPasswordHasher->hashPassword($user, $form->get('plainPassword')->getData()));
+             if ($form->has('isAdmin')) {
+-                if ($form->get('isAdmin')->getData() === true) {
++                if ($form->get('isAdmin')->getData() === false) {
+                     $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+                 }
+             } else {
+
+
+4) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:57    [M] Identical
+
+--- Original
++++ New
+@@ @@
+             // encode the plain password
+             $user->setPassword($userPasswordHasher->hashPassword($user, $form->get('plainPassword')->getData()));
+             if ($form->has('isAdmin')) {
+-                if ($form->get('isAdmin')->getData() === true) {
++                if ($form->get('isAdmin')->getData() !== true) {
+                     $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+                 }
+             } else {
+
+
+5) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:59    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+             $user->setPassword($userPasswordHasher->hashPassword($user, $form->get('plainPassword')->getData()));
+             if ($form->has('isAdmin')) {
+                 if ($form->get('isAdmin')->getData() === true) {
+-                    $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
++                    $user->setRoles(['ROLE_USER']);
+                 }
+             } else {
+                 $user->setRoles(['ROLE_USER']);
+
+
+6) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:59    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+             $user->setPassword($userPasswordHasher->hashPassword($user, $form->get('plainPassword')->getData()));
+             if ($form->has('isAdmin')) {
+                 if ($form->get('isAdmin')->getData() === true) {
+-                    $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
++                    
+                 }
+             } else {
+                 $user->setRoles(['ROLE_USER']);
+
+
+7) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:62    [M] ArrayItemRemoval
+
+--- Original
++++ New
+@@ @@
+                     $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+                 }
+             } else {
+-                $user->setRoles(['ROLE_USER']);
++                $user->setRoles([]);
+             }
+             $entityManager->persist($user);
+             $entityManager->flush();
+
+
+8) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:62    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+                     $user->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+                 }
+             } else {
+-                $user->setRoles(['ROLE_USER']);
++                
+             }
+             $entityManager->persist($user);
+             $entityManager->flush();
+
+
+9) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:65    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+             } else {
+                 $user->setRoles(['ROLE_USER']);
+             }
+-            $entityManager->persist($user);
++            
+             $entityManager->flush();
+             // generate a signed url and email it to the user
+             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user, (new TemplatedEmail())->from(new Address('todoAdmin@gmail.com', 'Admin Mail Bot'))->to($user->getEmail())->subject('Please Confirm your Email')->htmlTemplate('user/confirmation_email.html.twig'));
+
+
+10) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:66    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+                 $user->setRoles(['ROLE_USER']);
+             }
+             $entityManager->persist($user);
+-            $entityManager->flush();
++            
+             // generate a signed url and email it to the user
+             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user, (new TemplatedEmail())->from(new Address('todoAdmin@gmail.com', 'Admin Mail Bot'))->to($user->getEmail())->subject('Please Confirm your Email')->htmlTemplate('user/confirmation_email.html.twig'));
+             // do anything else you need here, like send an email
+
+
+11) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:69    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+             }
+             $entityManager->persist($user);
+             $entityManager->flush();
+-            // generate a signed url and email it to the user
+-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user, (new TemplatedEmail())->from(new Address('todoAdmin@gmail.com', 'Admin Mail Bot'))->to($user->getEmail())->subject('Please Confirm your Email')->htmlTemplate('user/confirmation_email.html.twig'));
++            
+             // do anything else you need here, like send an email
+             $this->addFlash('success', 'Connectez-vous puis cliquez sur le lien de confirmation dans votre boîte mail.');
+             return $this->redirectToRoute('app_home');
+
+
+12) C:\laragon\www\p8-todo-from-scratch\src\Controller\RegistrationController.php:78    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+             $entityManager->flush();
+             // generate a signed url and email it to the user
+             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user, (new TemplatedEmail())->from(new Address('todoAdmin@gmail.com', 'Admin Mail Bot'))->to($user->getEmail())->subject('Please Confirm your Email')->htmlTemplate('user/confirmation_email.html.twig'));
+-            // do anything else you need here, like send an email
+-            $this->addFlash('success', 'Connectez-vous puis cliquez sur le lien de confirmation dans votre boîte mail.');
++            
+             return $this->redirectToRoute('app_home');
+         }
+         return $this->render('user/create.html.twig', ['form' => $form->createView()]);
+
+
+13) C:\laragon\www\p8-todo-from-scratch\src\Controller\ResetPasswordController.php:91    [M] ProtectedVisibility
+
+--- Original
++++ New
+@@ @@
+     /**
+      * @codeCoverageIgnore
+      */
+-    protected function getTokenFromSessionWrapper()
++    private function getTokenFromSessionWrapper()
+     {
+         return $this->getTokenFromSession();
+     }
+
+
+14) C:\laragon\www\p8-todo-from-scratch\src\Controller\SecurityController.php:14    [M] PublicVisibility
+
+--- Original
++++ New
+@@ @@
+      * 
+      * @codeCoverageIgnore
+      */
+-    public function logout() : void
++    protected function logout() : void
+     {
+     }
+ }
+
+
+15) C:\laragon\www\p8-todo-from-scratch\src\Security\EmailVerifier.php:22    [M] PublicVisibility
+
+--- Original
++++ New
+@@ @@
+     public function __construct(private VerifyEmailHelperInterface $verifyEmailHelper, private MailerInterface $mailer, private EntityManagerInterface $entityManager)
+     {
+     }
+-    public function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email) : void
++    protected function sendEmailConfirmation(string $verifyEmailRouteName, UserInterface $user, TemplatedEmail $email) : void
+     {
+         $signatureComponents = $this->verifyEmailHelper->generateSignature($verifyEmailRouteName, $user->getId(), $user->getEmail());
+         $context = $email->getContext();
+
+
+16) C:\laragon\www\p8-todo-from-scratch\src\Security\EmailVerifier.php:35    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $context['signedUrl'] = $signatureComponents->getSignedUrl();
+         $context['expiresAtMessageKey'] = $signatureComponents->getExpirationMessageKey();
+         $context['expiresAtMessageData'] = $signatureComponents->getExpirationMessageData();
+-        $email->context($context);
++        
+         $this->mailer->send($email);
+     }
+     /**
+
+
+17) C:\laragon\www\p8-todo-from-scratch\src\Security\EmailVerifier.php:37    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+         $context['expiresAtMessageKey'] = $signatureComponents->getExpirationMessageKey();
+         $context['expiresAtMessageData'] = $signatureComponents->getExpirationMessageData();
+         $email->context($context);
+-        $this->mailer->send($email);
++        
+     }
+     /**
+      * @throws VerifyEmailExceptionInterface
+
+
+18) C:\laragon\www\p8-todo-from-scratch\src\Service\DecoratedResetPasswordHelper.php:20    [M] PublicVisibility
+
+--- Original
++++ New
+@@ @@
+     /**
+      * @codeCoverageIgnore
+      */
+-    public function generateFakeResetToken()
++    protected function generateFakeResetToken()
+     {
+         // If you want to override or add behavior, do it here.
+         // For now, let's just delegate to the original implementation:
+
+
+19) C:\laragon\www\p8-todo-from-scratch\src\Service\DecoratedResetPasswordHelper.php:44    [M] MethodCallRemoval
+
+--- Original
++++ New
+@@ @@
+      */
+     public function removeResetRequest(string $fullToken) : void
+     {
+-        $this->delegate->removeResetRequest($fullToken);
++        
+     }
+     /**
+      * @codeCoverageIgnore
