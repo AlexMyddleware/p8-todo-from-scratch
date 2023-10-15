@@ -180,6 +180,46 @@ class TaskControllerTest extends WebTestCase
         $this->assertEquals($newContent, $updatedTask->getContent());
     }
 
+    // public function to test getting all the completed tasks
+    public function testGetCompletedTasks(): void
+    {
+        $this->loginAsNormalUser();
+
+        // create 2 completed tasks
+        $task1 = new Task(
+            'task1',
+            'content1'
+        );
+
+        $task2 = new Task(
+            'task2',
+            'content2'
+        );
+
+        $task1->toggle(!$task1->getIsDone());
+
+        $task2->toggle(!$task2->getIsDone());
+
+        $this->taskRepository->save($task1, true);
+
+        $this->taskRepository->save($task2, true);
+
+        // Request the /task URL
+        $crawler = $this->client->request('GET', '/task/completed');
+
+        // Assert that the response status code is 200 (HTTP_OK)
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+
+        // Assert that there is exactly 0 task in the task list
+        // (assuming tasks are rendered as an HTML list, and each task is an <li> element)
+        $this->assertCount(2, $crawler->filter('div.thumbnail'));
+
+        // If you need to assert against the Response object directly,
+        // you can get it from the client and then make further assertions
+        $response = $this->client->getResponse();
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response);
+    }
+
     public function testEditTaskWithInvalidData(): void
     {
 
