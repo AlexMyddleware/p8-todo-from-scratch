@@ -1,0 +1,25 @@
+@startuml task
+
+class Task {
+    -id: int
+    -createdAt: DateTimeInterface
+    -title: string
+    -content: string
+    -isDone: bool
+    -created_by: User
+    +__construct(title: string, content: string, isDone: bool, createdAt: DateTimeInterface)
+    +getId(): int
+    +getCreatedAt(): DateTimeInterface
+    +setCreatedAt(createdAt: DateTimeInterface): void
+    +getTitle(): string
+    +setTitle(title: string): void
+    +getContent(): string
+    +setContent(content: string): void
+    +isDone(): bool
+    +getIsDone(): bool
+    +toggle(flag: bool): void
+    +getCreatedBy(): User
+    +setCreatedBy(created_by: User): Task
+}
+
+@enduml
