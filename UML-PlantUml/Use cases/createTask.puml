@@ -1,0 +1,20 @@
+@startuml createTask
+
+actor User
+actor Database
+
+usecase FillOutForm as "Fill out form"
+usecase ValidateForm as "Validate form input"
+usecase CreateTask as "Create task object"
+usecase SaveTask as "Save task to database"
+usecase DisplayConfirmation as "Display confirmation message"
+
+User --> FillOutForm
+FillOutForm --> ValidateForm : Controller
+ValidateForm --> CreateTask : Controller
+CreateTask --> SaveTask : Controller
+SaveTask --> Database
+Database --> DisplayConfirmation
+DisplayConfirmation --> User
+
+@enduml
