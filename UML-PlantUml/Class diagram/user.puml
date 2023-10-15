@@ -1,16 +1,37 @@
-@startuml User
+@startuml UserClassDiagram
 
 class User {
-  id: number
-  roles: string[]
-  password: string
-  isVerified: boolean
-  comments: comment[]
-  username: string
-  fullname: string
-  photo: string
-  tricks: trick[]
-  +create(username: string, fullname: string, photo: string): user
+    -id: int
+    -email: string
+    -roles: array
+    -password: string
+    -isVerified: bool
+    -fullname: string
+    -photo: string
+    -tasks: Collection<Task>
+    +__construct(): void
+    +getId(): int
+    +getEmail(): string
+    +setEmail(email: string): User
+    +getUserIdentifier(): string
+    +getRoles(): array
+    +setRoles(roles: array): User
+    +removeRole(role: string): User
+    +addRole(role: string): User
+    +getPassword(): string
+    +setPassword(password: string): User
+    +eraseCredentials(): void
+    +isVerified(): bool
+    +setIsVerified(isVerified: bool): User
+    +getFullname(): string
+    +setFullname(fullname: string): User
+    +getPhoto(): string
+    +setPhoto(photo: string): User
+    +getTasks(): Collection<Task>
+    +addTask(task: Task): User
+    +removeTask(task: Task): User
 }
+
+User "1" -- "0..*" Task : created_by
 
 @enduml

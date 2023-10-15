@@ -152,6 +152,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testEditTaskSuccess(): void
     {
+
+        $this->loginAsNormalUser();
         // Arrange: Prepare the task to edit
         $taskId = 1;
         $newTitle = 'Updated Title';
@@ -178,11 +180,102 @@ class TaskControllerTest extends WebTestCase
         $this->assertEquals($newContent, $updatedTask->getContent());
     }
 
+    // public function to test when a unverified user try to see all the tasks
+    public function testGetAllTasksUnverified(): void
+    {
+        
+        $crawler = $this->client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'notloggedin@gmail.com',
+            '_password' => 'Password1@',
+        ]);
+
+        $this->client->submit($form);
+
+        $crawler = $this->client->request('GET', '/task');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test completed
+        $crawler = $this->client->request('GET', '/task/completed');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test edit
+        $crawler = $this->client->request('GET', '/task/1/edit');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test toggle
+        $crawler = $this->client->request('GET', '/task/1/toggle');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test delete
+        $crawler = $this->client->request('GET', '/task/1/delete');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test create
+        $crawler = $this->client->request('GET', '/task/create');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+    }
+
+    // public function to test getting all the completed tasks
+    public function testGetCompletedTasks(): void
+    {
+        $this->loginAsNormalUser();
+
+        // create 2 completed tasks
+        $task1 = new Task(
+            'task1',
+            'content1'
+        );
+
+        $task2 = new Task(
+            'task2',
+            'content2'
+        );
+
+        $task1->toggle(!$task1->getIsDone());
+
+        $task2->toggle(!$task2->getIsDone());
+
+        $this->taskRepository->save($task1, true);
+
+        $this->taskRepository->save($task2, true);
+
+        // Request the /task URL
+        $crawler = $this->client->request('GET', '/task/completed');
+
+        // Assert that the response status code is 200 (HTTP_OK)
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+
+        // Assert that there is exactly 0 task in the task list
+        // (assuming tasks are rendered as an HTML list, and each task is an <li> element)
+        $this->assertCount(2, $crawler->filter('div.thumbnail'));
+
+        // If you need to assert against the Response object directly,
+        // you can get it from the client and then make further assertions
+        $response = $this->client->getResponse();
+        $this->assertInstanceOf('Symfony\Component\HttpFoundation\Response', $response);
+    }
+
     public function testEditTaskWithInvalidData(): void
     {
-        // Arrange: Prepare the task to edit
-        $taskId = 1;
 
+        $this->loginAsNormalUser();
+
+        $task = new Task(
+            'task to be edited with invalid data',
+            'content to be edited with invalid data'
+        );
+
+        $this->taskRepository->save($task, true);
+
+        $taskId = $task->getId();
         // Act: Request the edit page
         $crawler = $this->client->request('GET', "/task/{$taskId}/edit");
 
@@ -199,6 +292,8 @@ class TaskControllerTest extends WebTestCase
 
     public function testEditNonExistingTask(): void
     {
+
+        $this->loginAsNormalUser();
         // Arrange: Prepare a non-existing task ID
         $taskId = 9999;
 
@@ -212,8 +307,18 @@ class TaskControllerTest extends WebTestCase
     // Function to test the toggle function for a task
     public function testTaskToggleSuccess(): void
     {
-        // Arrange: Prepare the task to toggle
-        $taskId = 1;
+
+        $this->loginAsNormalUser();
+
+        $task = new Task(
+            'task to be switched once',
+            'content to be switched once'
+        );
+
+        $this->taskRepository->save($task, true);
+
+        $taskId = $task->getId();
+
         $task = $this->taskRepository->find($taskId);
         $initialIsDone = $task->getIsDone();
 
@@ -223,16 +328,28 @@ class TaskControllerTest extends WebTestCase
         // Assert: Response is a redirection to the task list
         $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
 
+        // refresh the task
+        $this->entityManager->refresh($task);
+
         // Assert: Task has been updated in the database
         $updatedTask = $this->taskRepository->find($taskId);
-        $this->assertNotEquals($initialIsDone, $updatedTask->getIsDone());
+        $this->assertNotEquals($initialIsDone, $task->getIsDone());
     }
 
     // Function to test the toggle function for a task by setting the task to done and then to not done
     public function testTaskToggleTwice(): void
     {
-        // Arrange: Prepare the task to toggle
-        $taskId = 1;
+
+        $this->loginAsNormalUser();
+
+        $task = new Task(
+            'task to be switched twice',
+            'content to be switched twice'
+        );
+
+        $this->taskRepository->save($task, true);
+
+        $taskId = $task->getId();
         $task = $this->taskRepository->find($taskId);
         $initialIsDone = $task->getIsDone();
 
@@ -241,6 +358,9 @@ class TaskControllerTest extends WebTestCase
 
         // Assert: Response is a redirection to the task list
         $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // refresh the task
+        $this->entityManager->refresh($task);
 
         // Assert: Task has been updated in the database
         $updatedTask = $this->taskRepository->find($taskId);
@@ -251,6 +371,10 @@ class TaskControllerTest extends WebTestCase
 
         // Assert: Response is a redirection to the task list
         $this->assertTrue($this->client->getResponse()->isRedirect('/task'));
+
+        // refresh the task
+        $this->entityManager->refresh($task);
+
 
         // Assert: Task has been updated in the database
         $updatedTask = $this->taskRepository->find($taskId);
@@ -260,8 +384,18 @@ class TaskControllerTest extends WebTestCase
     // Function to test the delete function for a task with not done
     public function testTaskDeleteFailed(): void
     {
+
+        $this->loginAsNormalUser();
         // Arrange: Prepare the task to delete
-        $taskId = 1;
+
+        $task = new Task(
+            'task to be deletedfailure',
+            'content deleted failure'
+        );
+
+        $this->taskRepository->save($task, true);
+
+        $taskId = $task->getId();
         $task = $this->taskRepository->find($taskId);
 
         // Act: Request the delete page
@@ -422,9 +556,28 @@ class TaskControllerTest extends WebTestCase
         
     }
 
+    public function loginAsNormalUser()
+    {
+        // log in as the author of the task
+        $crawler = $this->client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'normaluser@gmailcom',
+            '_password' => 'passwordnormal',
+        ]);
+
+        $this->client->submit($form);
+
+        // follow redirect
+        $this->client->followRedirect();
+    }
+
+
     // Function to tost the getAllTasks function
     public function testGetAllTasks(): void
     {
+        $this->loginAsNormalUser();
+
         // Asserts that the getAllTasks exists in the repository
         $this->assertTrue(
             method_exists($this->taskRepository, 'findAll'),

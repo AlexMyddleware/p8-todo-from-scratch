@@ -1,0 +1,36 @@
+@startuml RegisterUser
+
+actor User
+actor Admin
+actor Database
+
+usecase FillRegistrationForm as "Fill Registration Form"
+usecase ValidateForm as "Validate Form Input"
+usecase CreateNewUser as "Create New User Object"
+usecase HashPassword as "Hash Password"
+usecase AssignRoles as "Assign Roles"
+usecase PersistUser as "Persist User to Database"
+usecase SendConfirmationEmail as "Send Confirmation Email"
+usecase DisplaySuccessMessage as "Display Success Message"
+usecase EmailVerification as "Email Verification"
+usecase SetEmailVerified as "Set Email Verified"
+
+User --> FillRegistrationForm
+FillRegistrationForm --> ValidateForm : Controller
+ValidateForm --> CreateNewUser : Controller
+CreateNewUser --> HashPassword : Controller
+HashPassword --> AssignRoles : Controller
+AssignRoles --> PersistUser : Controller
+PersistUser --> Database
+Database --> SendConfirmationEmail
+SendConfirmationEmail --> User
+User --> EmailVerification
+EmailVerification --> SetEmailVerified : Controller
+SetEmailVerified --> Database
+Database --> DisplaySuccessMessage
+DisplaySuccessMessage --> User
+
+Admin --> FillRegistrationForm : Optional
+Admin --> AssignRoles : Optional
+
+@enduml

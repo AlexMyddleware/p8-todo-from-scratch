@@ -20,18 +20,51 @@ class TaskController extends AbstractController
         $this->taskRepository = $taskRepository;
     }
 
+    private function checkVerified()
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->getUser();
+        if (!$user || !$user->isVerified()) {
+            $this->addFlash('danger', 'Vous devez être vérifié pour accéder à cette page');
+            return $this->redirectToRoute('app_home');
+        }
+
+        return null;
+    }
+
     #[Route('/task', name: 'task_list')]
     public function getAllTasks(): Response
     {
+        $redirectResponse = $this->checkVerified();
+        if ($redirectResponse instanceof Response) {
+            return $redirectResponse;
+        }
+
         $tasks = $this->taskRepository->findAll();
         return $this->render('task/list.html.twig', ['tasks' => $tasks]);
     }
 
-    // functions with name task_edit, task_toggle, task_delete, task_create
+    // function to get all the completed tasks
+    #[Route('/task/completed', name: 'task_completed')]
+    public function getCompletedTasks(): Response
+    {
+        $redirectResponse = $this->checkVerified();
+        if ($redirectResponse instanceof Response) {
+            return $redirectResponse;
+        }
+
+        $tasks = $this->taskRepository->findBy(['isDone' => true]);
+        return $this->render('task/list.html.twig', ['tasks' => $tasks]);
+    }
 
     #[Route('/task/{id}/edit', name: 'task_edit')]
     public function task_edit(int $id, Request $request): Response
     {
+        $redirectResponse = $this->checkVerified();
+        if ($redirectResponse instanceof Response) {
+            return $redirectResponse;
+        }
         // creates a form and a render much like in th task_create function
         $initialTask = $this->taskRepository->find($id);
 
@@ -56,6 +89,11 @@ class TaskController extends AbstractController
     #[Route('/task/{id}/toggle', name: 'task_toggle')]
     public function task_toggle(int $id): Response
     {
+        $redirectResponse = $this->checkVerified();
+        if ($redirectResponse instanceof Response) {
+            return $redirectResponse;
+        }
+
         $task = $this->taskRepository->find($id);
         $task->toggle(!$task->getIsDone());
         $this->taskRepository->save($task, true);
@@ -65,6 +103,11 @@ class TaskController extends AbstractController
     #[Route('/task/{id}/delete', name: 'task_delete')]
     public function task_delete(int $id): Response
     {
+        $redirectResponse = $this->checkVerified();
+        if ($redirectResponse instanceof Response) {
+            return $redirectResponse;
+        }
+
         $task = $this->taskRepository->find($id);
 
         // get the task author
@@ -72,7 +115,6 @@ class TaskController extends AbstractController
 
         // get the current logged in user
         $user = $this->getUser();
-
         
         // variable to say if the current user is an admin
         $isAdmin = $this->isGranted('ROLE_ADMIN');
@@ -108,6 +150,11 @@ class TaskController extends AbstractController
     #[Route('/task/create', name: 'task_create')]
     public function task_create(Request $request): Response
     {
+        $redirectResponse = $this->checkVerified();
+        if ($redirectResponse instanceof Response) {
+            return $redirectResponse;
+        }
+
         // add form TaskType
         $taskForm = $this->createForm(TaskType::class);
         $taskForm->handleRequest($request);

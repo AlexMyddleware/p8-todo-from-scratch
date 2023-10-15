@@ -1,0 +1,16 @@
+@startuml CreateTask
+actor User
+entity Controller
+entity Task
+database Database
+
+User -> Controller : FillOutForm
+Controller -> User : ValidateFormInput()
+alt Form Valid
+    Controller -> Task : CreateTaskObject()
+    Task -> Database : SaveTask()
+    Database -> User : DisplayConfirmationMessage()
+else Form Invalid
+    User <-- Controller : DisplayValidationError()
+end
+@enduml
