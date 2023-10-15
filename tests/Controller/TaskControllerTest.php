@@ -180,6 +180,24 @@ class TaskControllerTest extends WebTestCase
         $this->assertEquals($newContent, $updatedTask->getContent());
     }
 
+    // public function to test when a unverified user try to see all the tasks
+    public function testGetAllTasksUnverified(): void
+    {
+        
+        $crawler = $this->client->request('GET', '/login');
+
+        $form = $crawler->selectButton('Se connecter')->form([
+            '_username' => 'notloggedin@gmail.com',
+            '_password' => 'Password1@',
+        ]);
+
+        $this->client->submit($form);
+
+        $crawler = $this->client->request('GET', '/task');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+    }
+
     // public function to test getting all the completed tasks
     public function testGetCompletedTasks(): void
     {
