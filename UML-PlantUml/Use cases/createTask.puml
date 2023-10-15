@@ -1,20 +1,16 @@
-@startuml createTask
-
+@startuml CreateTask
 actor User
-actor Database
+entity Controller
+entity Task
+database Database
 
-usecase FillOutForm as "Fill out form"
-usecase ValidateForm as "Validate form input"
-usecase CreateTask as "Create task object"
-usecase SaveTask as "Save task to database"
-usecase DisplayConfirmation as "Display confirmation message"
-
-User --> FillOutForm
-FillOutForm --> ValidateForm : Controller
-ValidateForm --> CreateTask : Controller
-CreateTask --> SaveTask : Controller
-SaveTask --> Database
-Database --> DisplayConfirmation
-DisplayConfirmation --> User
-
+User -> Controller : FillOutForm
+Controller -> User : ValidateFormInput()
+alt Form Valid
+    Controller -> Task : CreateTaskObject()
+    Task -> Database : SaveTask()
+    Database -> User : DisplayConfirmationMessage()
+else Form Invalid
+    User <-- Controller : DisplayValidationError()
+end
 @enduml
