@@ -9,10 +9,11 @@ User authentication system:
     Login, Register, Reset Password functionalities.
     Email verification system.
     Role-based access: Standard users (ROLE_USER) and Administrators (ROLE_ADMIN).
-Ttask management:
+Task management:
     Each task is linked to a user.
-    Only the creator of a task or an administrator can delete a task.
-    Tasks without an explicit creator are linked to an "anonymous" user.
+    Only the creator of a task delete a task.
+    Tasks without an explicit creator can linked to an "anonymous" user via the command :anonymous-tasks.
+    Only a verified user can access the tasks.
 Admin features:
     User management: Create, Switch between admin and regular user, delete users.
     Only administrators (ROLE_ADMIN) can manage users.
@@ -20,9 +21,9 @@ Admin features:
 
 ## Installation
 ### Step1: Clone the project
-`git clone https://github.com/your_username/todo-co.git`
+`git clone https://github.com/AlexMyddleware/p8-todo-from-scratch.git`
 
-`cd todo-co`
+go to the project folder
 
 ### Step2: Install dependencies
 `composer install`
@@ -43,3 +44,6 @@ use the commands
 
 ### Step6: Run the tests
 `./vendor/bin/phpunit --colors --testdox`
+
+### Step7: Run the anonymous tasks command
+`php bin/console app:anonymous-tasks`
