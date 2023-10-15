@@ -1,0 +1,21 @@
+@startuml AdminUseCase
+
+actor Admin
+actor Database
+
+usecase ViewAdminPanel as "View Admin Panel"
+usecase ViewUserDetails as "View User Details"
+usecase EditUserRoles as "Edit User Roles"
+usecase DeleteUser as "Delete User"
+
+Admin --> ViewAdminPanel : Accesses Admin Panel
+Admin --> ViewUserDetails : Views Details of a User
+Admin --> EditUserRoles : Edits Roles of a User
+Admin --> DeleteUser : Deletes a User
+
+ViewAdminPanel --> Database : Fetch All Users
+ViewUserDetails --> Database : Fetch User by ID
+EditUserRoles --> Database : Update User Roles
+DeleteUser --> Database : Remove User
+
+@enduml

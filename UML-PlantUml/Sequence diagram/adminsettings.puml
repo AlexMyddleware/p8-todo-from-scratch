@@ -1,0 +1,38 @@
+@startuml adminsettings
+actor Admin
+entity AdminSettingController
+database UserRepository
+database Database
+
+Admin -> AdminSettingController : Request Admin Panel
+AdminSettingController -> UserRepository : getAllUsers()
+UserRepository -> Database : Fetch All Users
+Database -> UserRepository : Return User List
+UserRepository -> AdminSettingController : Return User List
+AdminSettingController -> Admin : Display Admin Panel
+
+Admin -> AdminSettingController : View User (id)
+AdminSettingController -> UserRepository : getUserById(id)
+UserRepository -> Database : Fetch User
+Database -> UserRepository : Return User
+UserRepository -> AdminSettingController : Return User
+AdminSettingController -> Admin : Display User Details
+
+Admin -> AdminSettingController : Edit User Roles (id)
+AdminSettingController -> UserRepository : getUserById(id)
+UserRepository -> AdminSettingController : Return User
+AdminSettingController -> UserRepository : save(user, flush)
+UserRepository -> Database : Update User Roles
+Database -> UserRepository : Confirm Update
+UserRepository -> AdminSettingController : Confirm Update
+AdminSettingController -> Admin : Display Updated User
+
+Admin -> AdminSettingController : Delete User (id)
+AdminSettingController -> UserRepository : getUserById(id)
+UserRepository -> AdminSettingController : Return User
+AdminSettingController -> UserRepository : remove(user, flush)
+UserRepository -> Database : Delete User
+Database -> UserRepository : Confirm Deletion
+UserRepository -> AdminSettingController : Confirm Deletion
+AdminSettingController -> Admin : Display Admin Panel with User Deleted
+@enduml
