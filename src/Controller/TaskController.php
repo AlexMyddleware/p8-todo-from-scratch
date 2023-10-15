@@ -98,6 +98,10 @@ class TaskController extends AbstractController
         }
 
         $this->taskRepository->remove($task, true);
+        
+        // add a success flash message
+        $this->addFlash('success', 'The task has been deleted');
+        
         return $this->redirectToRoute('task_list');
     }
 
