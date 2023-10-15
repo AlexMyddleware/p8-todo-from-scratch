@@ -1,16 +1,29 @@
-@startuml register
-
+@startuml Register
 actor User
-boundary Form
-database DB
+actor Admin
+entity Controller
+entity UserObject
+database Database
+entity EmailService
 
-User -> Form : Fill out form
-Form -> DB : Check email
-DB -> Form : Email exists?
-Form --> User : Email already exists
-Form -> Form : Validate password
-Form -> DB : Save user
-DB -> Form : User saved
-Form --> User : Validation message
+User -> Controller : FillRegistrationForm()
+Controller -> User : ValidateFormInput()
+alt Form Valid
+    Controller -> UserObject : CreateNewUser()
+    Controller -> UserObject : HashPassword()
+    alt Admin Involved
+        Admin -> Controller : AssignRoles()
+    else User Self-Register
+        Controller -> UserObject : AssignDefaultRole()
+    end
+    Controller -> Database : PersistUser()
+    Database -> EmailService : SendConfirmationEmail()
+    EmailService -> User : EmailSent()
+    User -> Controller : EmailVerification()
+    Controller -> Database : SetEmailVerified()
+    Database -> User : DisplaySuccessMessage()
+else Form Invalid
+    User <- Controller : DisplayValidationError()
+end
 
 @enduml
