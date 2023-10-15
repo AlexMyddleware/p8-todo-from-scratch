@@ -196,6 +196,31 @@ class TaskControllerTest extends WebTestCase
         $crawler = $this->client->request('GET', '/task');
 
         $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test completed
+        $crawler = $this->client->request('GET', '/task/completed');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test edit
+        $crawler = $this->client->request('GET', '/task/1/edit');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test toggle
+        $crawler = $this->client->request('GET', '/task/1/toggle');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test delete
+        $crawler = $this->client->request('GET', '/task/1/delete');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
+
+        // test create
+        $crawler = $this->client->request('GET', '/task/create');
+
+        $this->assertTrue($this->client->getResponse()->isRedirect('/'));
     }
 
     // public function to test getting all the completed tasks
