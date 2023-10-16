@@ -21,3 +21,5 @@ this way you can determine the coverage on top of being sure that all your tests
 Your code must be clean and follow the PSR-12 standard.
 follow the documentation here
 https://www.php-fig.org/psr/psr-12/
+
+As a general rule, your code should be easy to read and understand. You should refactor it to avoid too much duplication. If you are not sure about the quality of your code, remember that you can always ask for help and advice. 

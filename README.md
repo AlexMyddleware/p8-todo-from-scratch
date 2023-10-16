@@ -31,6 +31,8 @@ go to the project folder
 ### Step3: Configure the environment variables
 create a .env.local and be sure to input your database information. If you are using laragon, it should look like this
 DATABASE_URL="mysql://Myusername:Mypassword@127.0.0.1:3306/Mydatabasename?serverVersion=5.7"
+You need to configure you mailer dsn, here is what it should look like: 
+MAILER_DSN=smtp://myfakeusername:myfakepassword@smtp.mailtrap.io:2525?encryption=tls&auth_mode=login
 
 ### Step4: Create the database
 use the commands
@@ -47,3 +49,21 @@ use the commands
 
 ### Step7: Run the anonymous tasks command
 `php bin/console app:anonymous-tasks`
+
+## Usage
+You can create a new user by clicking on the register button. You will receive an email to verify your account. You can then login and create tasks.
+If you are an admin user, you can assign the admin role when you create a new user and switch other users between admin and regular user. You can also delete users.
+You need to be verified before you can do anything related to the tasks, so don't forget to check your emails.
+
+
+
+## Useful commands
+
+#### Coverage report
+`./vendor/bin/phpunit --colors --testdox --coverage-html coverage-report`
+
+### Run localized test
+`./vendor/bin/phpunit tests/Controller/TaskControllerTest.php --testdox`
+
+### Run the infection test
+`php infection.phar`
