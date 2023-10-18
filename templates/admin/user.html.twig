@@ -22,18 +22,6 @@
     </div>
     <div class="row">
         <div class="col-md-8">
-            <h3>Tasks</h3>
-            <ul>
-                {% for task in user.tasks %}
-                    <li><a href="{{ path('task_show', { 'id': task.id }) }}">{{ task.title }}</a></li>
-                {% else %}
-                    <li>No tasks found</li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-8">
             <a class="btn btn-default" href="{{ path('admin_users') }}">Back to the list</a>
             <a class="btn btn-default" href="{{ path('user_edit', { 'id': user.id }) }}">Switch Roles</a>
             {# button with the id user_delete #}
